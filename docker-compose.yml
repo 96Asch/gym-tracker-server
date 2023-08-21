@@ -1,0 +1,44 @@
+version: '3.19'
+services:
+
+  gym-tracker-backend:
+    container_name: gym-tracker-backend
+    env_file:
+      - .env
+    build: 
+      dockerfile: Dockerfile
+      args:
+        - PORT = ${APP_PORT}
+    restart: on-failure
+    ports:
+      - ${APP_PORT}:${APP_PORT}
+    networks:
+      - app
+    depends_on:
+      - gym-tracker-postgres
+  
+  gym-tracker-postgres:
+    container_name: gum-tracker-postgres
+    image: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=${PG_PASS}
+      - POSTGRES_USER=${PG_USER}
+    networks:
+      - app
+
+
+  gym-tracker-adminer:
+    container_name: gym-tracker-adminer
+    image: adminer
+    restart: always
+    ports:
+      - 5678:8080
+    networks:
+      - app
+
+networks:
+  app:
+    driver: bridge
