@@ -1,3 +1,2 @@
 run:
-	docker build -t gym-tracker-server .
-	docker run gym-tracker-server
+	docker-compose -f docker-compose.yml up --build
