@@ -10,8 +10,9 @@ export class AppError extends Error {
 
 const makeDuplicateError = function (modelName: string, duplicateFields: string[]) {
     return new AppError(
-        `Instance already exists for fields 
-        [${duplicateFields.join(',')}] for ${modelName}`,
+        `Instance already exists for fields [${duplicateFields.join(
+            ','
+        )}] for ${modelName}`,
         401
     );
 };
@@ -23,7 +24,18 @@ const makeBindError = function (requiredFields: string[]) {
     );
 };
 
+const makeBadRequest = function (reason: string) {
+    return new AppError(reason, 401);
+};
+
+const makeInternal = function (internalMessage: string) {
+    console.error(internalMessage);
+    return new AppError(internalMessage, 500);
+};
+
 export default Object.freeze({
     makeDuplicateError,
     makeBindError,
+    makeBadRequest,
+    makeInternal,
 });

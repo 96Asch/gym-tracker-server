@@ -5,7 +5,7 @@ import {
     CreationOptional,
     InferCreationAttributes,
 } from 'sequelize';
-import sequelize from '../../config/postgres';
+import sequelize from './sequelize';
 
 class ExerciseInterface extends Model<
     InferAttributes<ExerciseInterface>,
@@ -16,13 +16,15 @@ class ExerciseInterface extends Model<
     declare target: string;
 }
 
+console.log('Exercise Init');
+
 ExerciseInterface.init(
     {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
-            allowNull: false,
             primaryKey: true,
+            allowNull: false,
         },
         name: {
             type: DataTypes.STRING,
@@ -34,10 +36,12 @@ ExerciseInterface.init(
         },
     },
     {
-        sequelize,
+        sequelize: sequelize,
         tableName: 'Exercises',
         timestamps: false,
     }
 );
+
+console.log('Created Exercise');
 
 export default ExerciseInterface;

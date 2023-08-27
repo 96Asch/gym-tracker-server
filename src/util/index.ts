@@ -1,3 +1,3 @@
-import bind from './bind';
+import formatDate from './date';
 
-export { bind };
+export { formatDate };

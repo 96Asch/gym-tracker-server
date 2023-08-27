@@ -1,6 +1,6 @@
 import application from './config';
 
-const runApplication = async () => {
+const runApplication = () => {
     application.initialize();
     application.run();
 };

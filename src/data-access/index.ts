@@ -1,5 +1,9 @@
 import ExerciseDataAccess from './exercise';
+import ProgramDataAccess from './program';
 
-const exersiceDA = new ExerciseDataAccess();
+const exerciseFilterKeys = ['ids', 'targets'];
 
-export { exersiceDA };
+const exersiceDA = new ExerciseDataAccess(exerciseFilterKeys);
+const programDA = new ProgramDataAccess();
+
+export { exersiceDA, programDA };

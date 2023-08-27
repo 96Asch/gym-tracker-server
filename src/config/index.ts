@@ -2,15 +2,14 @@ import express from 'express';
 import env from './environment';
 import { Application } from './server';
 import routes from '../routes';
-import sequelize from './postgres';
 import errorHandler from '../routes/error';
-import type { Request, Response, NextFunction } from 'express';
+import { sequelizeInstance } from '../sequelize';
 
 const application: Application = {
     client: express(),
 
     initialize: function (): void {
-        sequelize
+        sequelizeInstance
             .authenticate()
             .then(() => {
                 console.log('Connection to postgres succeeded');

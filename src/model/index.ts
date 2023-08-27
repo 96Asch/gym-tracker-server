@@ -1,4 +1,13 @@
-import { Exercise, IExerciseDA, IExerciseService, ExerciseInterface } from './exercise';
-import AppError from './error';
+import {
+    Exercise,
+    ExerciseBody,
+    ExerciseQuery,
+    IExerciseDA,
+    IExerciseService,
+} from './exercise';
+import errors, { AppError } from './error';
+import { Program, IProgramDA, IProgramService } from './program';
 
-export { Exercise, IExerciseDA, IExerciseService, ExerciseInterface, AppError };
+export { AppError, errors };
+export { Exercise, IExerciseDA, IExerciseService, ExerciseBody, ExerciseQuery };
+export { Program, IProgramDA, IProgramService };

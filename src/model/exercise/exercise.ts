@@ -1,7 +1,5 @@
-interface Exercise {
+export default interface Exercise {
     id?: number;
     name: string;
     target: string;
 }
-
-export default Exercise;

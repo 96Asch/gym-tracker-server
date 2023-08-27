@@ -9,10 +9,14 @@ export default function errorHandler(
 ) {
     let status = 500;
     let message = err.message;
-    console.log('errorHandler');
 
     if (err instanceof AppError) {
         status = err.getStatus();
+    }
+
+    if (status == 500) {
+        console.error(message);
+        message = 'something went wrong on the server';
     }
 
     res.status(status).json({ error: message });
