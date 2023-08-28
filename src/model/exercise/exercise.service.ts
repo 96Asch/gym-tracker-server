@@ -6,7 +6,7 @@ interface IExerciseService {
     insert(fields: Exercise): Promise<Exercise>;
     read(query: ExerciseQuery): Promise<Exercise[]>;
     update(fields: Exercise): Promise<Exercise>;
-    delete(filterOptions: Map<string, string>): Promise<void>;
+    delete(ids: number[]): Promise<void>;
 }
 
 export default IExerciseService;

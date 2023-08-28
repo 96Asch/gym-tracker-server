@@ -6,8 +6,14 @@ import {
     IExerciseService,
 } from './exercise';
 import errors, { AppError } from './error';
-import { Program, IProgramDA, IProgramService } from './program';
+import {
+    Program,
+    IProgramDA,
+    IProgramService,
+    ProgramBody,
+    ProgramQuery,
+} from './program';
 
 export { AppError, errors };
 export { Exercise, IExerciseDA, IExerciseService, ExerciseBody, ExerciseQuery };
-export { Program, IProgramDA, IProgramService };
+export { Program, IProgramDA, IProgramService, ProgramBody, ProgramQuery };

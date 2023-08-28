@@ -1,7 +1,8 @@
-import { Op, ValidationError } from 'sequelize';
+import { Op, ValidationError, col } from 'sequelize';
 import { Exercise, ExerciseQuery, IExerciseDA, errors } from '../model';
 import { ExerciseInterface } from '../sequelize';
 import type { BaseError } from 'sequelize';
+import buildSequelizeQuery from './querybuilder';
 
 export default class ExerciseDataAccess implements IExerciseDA {
     constructor(private readonly filterKeys: string[]) {}
@@ -9,8 +10,8 @@ export default class ExerciseDataAccess implements IExerciseDA {
     async insert(fields: Exercise): Promise<Exercise> {
         try {
             const exercise = await ExerciseInterface.create({
-                name: fields.name,
-                target: fields.target,
+                name: fields.name as string,
+                target: fields.target as string,
             });
 
             return {
@@ -27,40 +28,10 @@ export default class ExerciseDataAccess implements IExerciseDA {
         return { name: '', target: '' };
     }
 
-    async read(query: ExerciseQuery): Promise<Exercise[]> {
-        let statement: Object = {};
-        let andClauses: Object = {};
-        let filterUsed = false;
-
-        Object.keys(query).forEach((key: string) => {
-            const value = query[key as keyof typeof query];
-            if (value) {
-                filterUsed = true;
-                let operator: Object = value;
-                if (value.includes(',')) {
-                    operator = {
-                        [Op.in]: value.split(','),
-                    };
-                }
-
-                andClauses = {
-                    ...andClauses,
-                    [key]: operator,
-                };
-            }
-        });
-
-        if (filterUsed) {
-            statement = {
-                where: {
-                    ...andClauses,
-                },
-            };
-        }
-
+    async read(query: Exercise): Promise<Exercise[]> {
+        const statement = buildSequelizeQuery(query);
         console.log(statement);
-
-        return await ExerciseInterface.findAll(statement);
+        return await ExerciseInterface.findAll({ order: col('id'), ...statement });
     }
 
     async update(fields: Exercise): Promise<Exercise> {
@@ -82,7 +53,17 @@ export default class ExerciseDataAccess implements IExerciseDA {
         };
     }
 
-    async delete(filterOptions: Map<string, string>): Promise<void> {
-        throw new Error('Method not implemented.');
+    async delete(ids: number[]): Promise<void> {
+        const exercises = await ExerciseInterface.findAll({
+            where: {
+                id: {
+                    [Op.in]: ids,
+                },
+            },
+        });
+
+        exercises.forEach((exercise) => {
+            exercise.destroy();
+        });
     }
 }

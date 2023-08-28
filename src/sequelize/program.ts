@@ -35,7 +35,7 @@ ProgramInterface.init(
             allowNull: false,
         },
     },
-    { sequelize: sequelize, updatedAt: false }
+    { sequelize: sequelize, tableName: 'Programs', updatedAt: false, createdAt: false }
 );
 
 console.log('Created Program');

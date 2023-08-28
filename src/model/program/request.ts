@@ -4,7 +4,7 @@ interface ProgramBody {
 }
 
 interface ProgramQuery {
-    id?: string;
+    ids?: string;
     before?: string;
 }
 

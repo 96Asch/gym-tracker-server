@@ -17,10 +17,24 @@ export class ExerciseService implements IExerciseService {
     }
 
     async read(query: ExerciseQuery): Promise<Exercise[]> {
-        query.id = query?.id?.trim();
-        query.target = query?.target?.trim().toLowerCase();
+        query.ids = query?.ids?.trim();
+        query.targets = query?.targets?.trim().toLowerCase();
 
-        const exercises = await this.exerciseDA.read(query);
+        if (query.ids) {
+            const ids = query.ids.split(',');
+            const nans = ids.filter((id: string) => {
+                return Number.isNaN(parseInt(id));
+            });
+
+            if (nans.length > 0) {
+                throw errors.makeBadRequest(`query [ids] non-numbers: [${nans}]`);
+            }
+        }
+
+        const exercises = await this.exerciseDA.read({
+            id: query.ids,
+            target: query.targets,
+        });
 
         return exercises;
     }
@@ -37,7 +51,7 @@ export class ExerciseService implements IExerciseService {
         return updatedExercise;
     }
 
-    async delete(filterOptions: Map<string, string>): Promise<void> {
-        throw new Error('Method not implemented.');
+    async delete(ids: number[]): Promise<void> {
+        await this.exerciseDA.delete(ids);
     }
 }

@@ -1,5 +1,5 @@
 export interface Program {
-    id?: number;
-    name: string;
-    endDate: Date;
+    id?: number | string;
+    name?: string;
+    endDate?: Date;
 }

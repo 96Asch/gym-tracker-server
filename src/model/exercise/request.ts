@@ -4,8 +4,8 @@ interface ExerciseBody {
 }
 
 interface ExerciseQuery {
-    id?: string;
-    target?: string;
+    ids?: string;
+    targets?: string;
 }
 
 export { ExerciseBody, ExerciseQuery };
