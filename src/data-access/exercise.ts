@@ -14,15 +14,12 @@ export default class ExerciseDataAccess implements IExerciseDA {
                 target: fields.target as string,
             });
 
-            return {
-                id: exercise.id,
-                name: exercise.name,
-                target: exercise.target,
-            };
+            return exercise;
         } catch (error) {
             if (error instanceof ValidationError) {
                 throw errors.makeDuplicateError('exercise', ['name']);
             }
+            throw error;
         }
 
         return { name: '', target: '' };

@@ -17,8 +17,6 @@ class ExerciseInterface extends Model<
     declare target: string;
 }
 
-console.log('Exercise Init');
-
 ExerciseInterface.init(
     {
         id: {
@@ -38,11 +36,9 @@ ExerciseInterface.init(
     },
     {
         sequelize: sequelize,
-        tableName: 'Exercises',
+        tableName: 'exercises',
         timestamps: false,
     }
 );
-
-console.log('Created Exercise');
 
 export default ExerciseInterface;

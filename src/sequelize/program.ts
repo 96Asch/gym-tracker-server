@@ -17,8 +17,6 @@ class ProgramInterface extends Model<
     declare endDate: Date;
 }
 
-console.log('Program Init');
-
 ProgramInterface.init(
     {
         id: {
@@ -36,9 +34,7 @@ ProgramInterface.init(
             allowNull: false,
         },
     },
-    { sequelize: sequelize, tableName: 'Programs', updatedAt: false, createdAt: false }
+    { sequelize: sequelize, tableName: 'programs', updatedAt: false, createdAt: false }
 );
-
-console.log('Created Program');
 
 export default ProgramInterface;

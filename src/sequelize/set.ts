@@ -39,12 +39,12 @@ SetInterface.init(
         programId: {
             allowNull: false,
             type: DataTypes.INTEGER,
-            references: { model: 'Programs', key: 'id' },
+            references: { model: 'programs', key: 'id' },
         },
         exerciseId: {
             allowNull: false,
             type: DataTypes.INTEGER,
-            references: { model: 'Exercises', key: 'id' },
+            references: { model: 'exercises', key: 'id' },
         },
         weightInKg: {
             allowNull: false,
@@ -59,7 +59,7 @@ SetInterface.init(
     },
     {
         sequelize: sequelize,
-        tableName: 'Sets',
+        tableName: 'sets',
         createdAt: false,
         updatedAt: false,
     }
