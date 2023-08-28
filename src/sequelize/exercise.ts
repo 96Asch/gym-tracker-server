@@ -6,6 +6,7 @@ import {
     InferCreationAttributes,
 } from 'sequelize';
 import sequelize from './sequelize';
+import SetInterface from './set';
 
 class ExerciseInterface extends Model<
     InferAttributes<ExerciseInterface>,

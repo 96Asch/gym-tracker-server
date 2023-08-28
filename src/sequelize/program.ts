@@ -6,6 +6,7 @@ import {
     CreationOptional,
 } from 'sequelize';
 import sequelize from './sequelize';
+import SetInterface from './set';
 
 class ProgramInterface extends Model<
     InferAttributes<ProgramInterface>,

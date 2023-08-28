@@ -8,10 +8,10 @@ services:
     build: 
       dockerfile: Dockerfile
       args:
-        - PORT = ${APP_PORT}
+        - PORT = ${PORT}
     restart: on-failure
     ports:
-      - ${APP_PORT}:${APP_PORT}
+      - ${PORT}:${PORT}
     networks:
       - app
     depends_on:

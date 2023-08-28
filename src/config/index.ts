@@ -25,8 +25,8 @@ const application: Application = {
     },
 
     run: function (): void {
-        this.client.listen(env.APP_PORT, () => {
-            console.log(`Application started on port ${env.APP_PORT}`);
+        this.client.listen(env.PORT, () => {
+            console.log(`Application started on port ${env.PORT}`);
         });
     },
 };
