@@ -5,19 +5,18 @@ import {
     CreationOptional,
     InferCreationAttributes,
 } from 'sequelize';
-import sequelize from './sequelize';
-import SetInterface from './set';
+import { sequelizeInstance } from './sequelize';
 
-class ExerciseInterface extends Model<
-    InferAttributes<ExerciseInterface>,
-    InferCreationAttributes<ExerciseInterface>
+class Exercise extends Model<
+    InferAttributes<Exercise>,
+    InferCreationAttributes<Exercise>
 > {
     declare id: CreationOptional<number>;
     declare name: string;
     declare target: string;
 }
 
-ExerciseInterface.init(
+Exercise.init(
     {
         id: {
             type: DataTypes.INTEGER,
@@ -35,10 +34,10 @@ ExerciseInterface.init(
         },
     },
     {
-        sequelize: sequelize,
-        tableName: 'exercises',
+        sequelize: sequelizeInstance,
+        tableName: 'Exercises',
         timestamps: false,
     }
 );
 
-export default ExerciseInterface;
+export default Exercise;

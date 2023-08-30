@@ -1,42 +1,38 @@
 import { Op } from 'sequelize';
+import { Query, QueryOperator } from '../model';
 
-export default function buildSequelizeQuery(query: Object): Object {
+const operatorToSequelize = function (operator: QueryOperator): symbol {
+    switch (operator) {
+        case 'EQ':
+            return Op.eq;
+        case 'In':
+            return Op.in;
+        case 'LessThan':
+            return Op.lt;
+        case 'Between':
+            return Op.between;
+        case 'LessThanOrEqual':
+            return Op.lte;
+        case 'StartsWith':
+            return Op.startsWith;
+    }
+};
+
+const buildSequelizeQuery = function (queries: Query[]): Object {
     let statement: Object = {};
     let andClauses: Object = {};
-    let filterUsed = false;
 
-    Object.entries(query).forEach((entry: [string, any]) => {
-        const value = entry[1];
-        if (value) {
-            filterUsed = true;
-            let operator: Object = value;
-
-            console.log(value, 'type =>', typeof value);
-
-            switch (typeof value) {
-                case 'string':
-                    if (value.includes(',')) {
-                        console.log(value, 'includes ,');
-                        operator = value.split(',');
-                    }
-                    break;
-                default:
-                    if (value instanceof Date) {
-                        operator = {
-                            [Op.lte]: value,
-                        };
-                    }
-                    break;
-            }
-
-            andClauses = {
-                ...andClauses,
-                [entry[0]]: operator,
-            };
-        }
+    queries.forEach((query: Query) => {
+        const sym = operatorToSequelize(query.operator);
+        andClauses = {
+            ...andClauses,
+            [query.key]: {
+                [sym]: query.value,
+            },
+        };
     });
 
-    if (filterUsed) {
+    if (queries.length > 0) {
         statement = {
             where: {
                 ...andClauses,
@@ -45,4 +41,6 @@ export default function buildSequelizeQuery(query: Object): Object {
     }
 
     return statement;
-}
+};
+
+export { buildSequelizeQuery };

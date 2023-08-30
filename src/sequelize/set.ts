@@ -1,29 +1,40 @@
 import {
+    Association,
     CreationOptional,
     DataTypes,
-    ForeignKey,
+    HasOneGetAssociationMixin,
+    HasOneSetAssociationMixin,
     InferAttributes,
     InferCreationAttributes,
     Model,
+    NonAttribute,
 } from 'sequelize';
 
-import sequelize from './sequelize';
-import ProgramInterface from './program';
-import ExerciseInterface from './exercise';
+import { sequelizeInstance } from './sequelize';
+import Program from './program';
+import Exercise from './exercise';
 
-class SetInterface extends Model<
-    InferAttributes<SetInterface>,
-    InferCreationAttributes<SetInterface>
-> {
+class Set extends Model<InferAttributes<Set>, InferCreationAttributes<Set>> {
     declare id: CreationOptional<number>;
     declare repetitions: number;
-    declare programId: ForeignKey<ProgramInterface['id']>;
-    declare exerciseId: ForeignKey<ExerciseInterface['id']>;
     declare weightInKg: number;
     declare double: boolean;
+
+    declare setProgram: HasOneSetAssociationMixin<Program, number>;
+    declare getProgram: HasOneGetAssociationMixin<Program>;
+    declare setExercise: HasOneSetAssociationMixin<Exercise, number>;
+    declare getExercise: HasOneGetAssociationMixin<Exercise>;
+
+    declare exercise?: NonAttribute<Exercise>;
+    declare program?: NonAttribute<Program>;
+
+    declare static associations: {
+        exercise: Association<Set, Exercise>;
+        program: Association<Set, Program>;
+    };
 }
 
-SetInterface.init(
+Set.init(
     {
         id: {
             allowNull: false,
@@ -35,16 +46,6 @@ SetInterface.init(
             allowNull: false,
             type: DataTypes.INTEGER,
             defaultValue: 0,
-        },
-        programId: {
-            allowNull: false,
-            type: DataTypes.INTEGER,
-            references: { model: 'programs', key: 'id' },
-        },
-        exerciseId: {
-            allowNull: false,
-            type: DataTypes.INTEGER,
-            references: { model: 'exercises', key: 'id' },
         },
         weightInKg: {
             allowNull: false,
@@ -58,11 +59,10 @@ SetInterface.init(
         },
     },
     {
-        sequelize: sequelize,
-        tableName: 'sets',
+        sequelize: sequelizeInstance,
         createdAt: false,
         updatedAt: false,
     }
 );
 
-export default SetInterface;
+export default Set;

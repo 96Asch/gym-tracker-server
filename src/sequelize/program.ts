@@ -5,19 +5,15 @@ import {
     InferCreationAttributes,
     CreationOptional,
 } from 'sequelize';
-import sequelize from './sequelize';
-import SetInterface from './set';
+import { sequelizeInstance } from './sequelize';
 
-class ProgramInterface extends Model<
-    InferAttributes<ProgramInterface>,
-    InferCreationAttributes<ProgramInterface>
-> {
+class Program extends Model<InferAttributes<Program>, InferCreationAttributes<Program>> {
     declare id: CreationOptional<number>;
     declare name: string;
     declare endDate: Date;
 }
 
-ProgramInterface.init(
+Program.init(
     {
         id: {
             type: DataTypes.INTEGER,
@@ -34,7 +30,7 @@ ProgramInterface.init(
             allowNull: false,
         },
     },
-    { sequelize: sequelize, tableName: 'programs', updatedAt: false, createdAt: false }
+    { sequelize: sequelizeInstance, updatedAt: false, createdAt: false }
 );
 
-export default ProgramInterface;
+export default Program;

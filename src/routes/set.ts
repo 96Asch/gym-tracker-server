@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import type { Request, Response, NextFunction } from 'express';
-import { SetBody } from '../model/set';
+import type { SetBody } from '../model';
 import { errors } from '../model';
+import { setService } from '../service';
 const setRoute = Router();
 
 setRoute.post(
@@ -9,12 +10,32 @@ setRoute.post(
     async (req: Request<{}, {}, SetBody, {}>, res: Response, next: NextFunction) => {
         const { body } = req;
 
+        console.log(body);
+        console.log(body.double);
+
+        if (
+            body.double == null ||
+            !body.exerciseId ||
+            !body.programId ||
+            !body.repetitions ||
+            !body.weightInKg
+        ) {
+            next(errors.makeBadRequest(`missing required fields`));
+
+            return;
+        }
         if (body.exerciseId <= 0 || body.programId <= 0) {
             next(errors.makeBadRequest('[exerciseId, programId] cannot be empty or 0'));
+
+            return;
         }
 
         try {
-        } catch (error) {}
+            const set = await setService.insert(body);
+            res.status(201).json({ set: set });
+        } catch (error) {
+            next(error);
+        }
     }
 );
 

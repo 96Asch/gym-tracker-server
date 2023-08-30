@@ -1,4 +1,12 @@
-import { Exercise, ExerciseQuery, IExerciseDA, IExerciseService, errors } from '../model';
+import {
+    Exercise,
+    ExerciseQuery,
+    IExerciseDA,
+    IExerciseService,
+    errors,
+    queryBuilder,
+} from '../model';
+import type { Query } from '../model';
 
 export class ExerciseService implements IExerciseService {
     exerciseDA: IExerciseDA;
@@ -17,24 +25,26 @@ export class ExerciseService implements IExerciseService {
     }
 
     async read(query: ExerciseQuery): Promise<Exercise[]> {
-        query.ids = query?.ids?.trim();
-        query.targets = query?.targets?.trim().toLowerCase();
+        const queries: Query[] = [];
 
         if (query.ids) {
-            const ids = query.ids.split(',');
-            const nans = ids.filter((id: string) => {
-                return Number.isNaN(parseInt(id));
-            });
-
-            if (nans.length > 0) {
-                throw errors.makeBadRequest(`query [ids] non-numbers: [${nans}]`);
+            const ids = query.ids.trim();
+            if (ids.includes('-')) {
+                queries.push(queryBuilder.makeRange('id', ids, true));
+            } else if (query.ids.includes(',')) {
+                queries.push(queryBuilder.makeList('id', ids, true));
+            } else {
+                queries.push(queryBuilder.makeSingle('id', ids, 'EQ'));
             }
         }
 
-        const exercises = await this.exerciseDA.read({
-            id: query.ids,
-            target: query.targets,
-        });
+        if (query.targets) {
+            queries.push(
+                queryBuilder.makeSingle('target', query.targets.trim(), 'StartsWith')
+            );
+        }
+
+        const exercises = await this.exerciseDA.read(queries);
 
         return exercises;
     }

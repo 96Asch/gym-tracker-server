@@ -3,18 +3,17 @@ import env from './environment';
 import { Application } from './server';
 import routes from '../routes';
 import errorHandler from '../routes/error';
-import { sequelizeInstance } from '../sequelize';
+import db from '../sequelize';
 
 const application: Application = {
     client: express(),
 
     initialize: function (): void {
-        sequelizeInstance
-            .authenticate()
+        db.checkConnection()
             .then(() => {
-                console.log('Connection to postgres succeeded');
+                console.log('Connection to database succeeded');
             })
-            .catch((error) => {
+            .catch((error: Error) => {
                 console.error(error);
                 process.exit(1);
             });

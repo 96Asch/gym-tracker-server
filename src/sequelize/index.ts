@@ -1,21 +1,24 @@
-import ExerciseInterface from './exercise';
-import ProgramInterface from './program';
-import SetInterface from './set';
-import sequelizeInstance from './sequelize';
+import Exercise from './exercise';
+import Program from './program';
+import Set from './set';
+import { checkConnection } from './sequelize';
 
-ProgramInterface.hasMany(SetInterface, {
+Program.hasMany(Set, {
     sourceKey: 'id',
-    foreignKey: 'programId',
-    as: 'sets',
+    as: 'programSets',
 });
 
-ExerciseInterface.hasMany(SetInterface, {
+Exercise.hasMany(Set, {
     sourceKey: 'id',
-    foreignKey: 'exerciseId',
-    as: 'sets',
+    as: 'exerciseSets',
 });
 
-SetInterface.belongsTo(ProgramInterface, { targetKey: 'id' });
-SetInterface.belongsTo(ExerciseInterface, { targetKey: 'id' });
+Set.belongsTo(Program, { targetKey: 'id' });
+Set.belongsTo(Exercise, { targetKey: 'id' });
 
-export { ExerciseInterface, ProgramInterface, sequelizeInstance };
+export default Object.freeze({
+    Exercise,
+    Program,
+    Set,
+    checkConnection,
+});

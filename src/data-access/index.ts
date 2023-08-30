@@ -1,9 +1,9 @@
 import ExerciseDataAccess from './exercise';
 import ProgramDataAccess from './program';
+import { SetDataAccess } from './set';
 
-const exerciseFilterKeys = ['ids', 'targets'];
-
-const exersiceDA = new ExerciseDataAccess(exerciseFilterKeys);
+const exersiceDA = new ExerciseDataAccess();
 const programDA = new ProgramDataAccess();
+const setDA = new SetDataAccess();
 
-export { exersiceDA, programDA };
+export { exersiceDA, programDA, setDA };

@@ -1,15 +1,14 @@
 import { Op, ValidationError, col } from 'sequelize';
-import { Exercise, ExerciseQuery, IExerciseDA, errors } from '../model';
-import { ExerciseInterface } from '../sequelize';
-import type { BaseError } from 'sequelize';
-import buildSequelizeQuery from './querybuilder';
+import { Exercise, IExerciseDA, Query, errors } from '../model';
+import db from '../sequelize';
+import { buildSequelizeQuery } from './querybuilder';
 
 export default class ExerciseDataAccess implements IExerciseDA {
-    constructor(private readonly filterKeys: string[]) {}
+    constructor() {}
 
     async insert(fields: Exercise): Promise<Exercise> {
         try {
-            const exercise = await ExerciseInterface.create({
+            const exercise = await db.Exercise.create({
                 name: fields.name as string,
                 target: fields.target as string,
             });
@@ -21,18 +20,16 @@ export default class ExerciseDataAccess implements IExerciseDA {
             }
             throw error;
         }
-
-        return { name: '', target: '' };
     }
 
-    async read(query: Exercise): Promise<Exercise[]> {
-        const statement = buildSequelizeQuery(query);
+    async read(queries: Query[]): Promise<Exercise[]> {
+        const statement = buildSequelizeQuery(queries);
         console.log(statement);
-        return await ExerciseInterface.findAll({ order: col('id'), ...statement });
+        return await db.Exercise.findAll({ order: col('id'), ...statement });
     }
 
     async update(fields: Exercise): Promise<Exercise> {
-        const exercise = await ExerciseInterface.findByPk(fields.id);
+        const exercise = await db.Exercise.findByPk(fields.id);
 
         if (!exercise) {
             throw errors.makeBadRequest('given id does not exist');
@@ -51,7 +48,7 @@ export default class ExerciseDataAccess implements IExerciseDA {
     }
 
     async delete(ids: number[]): Promise<void> {
-        const exercises = await ExerciseInterface.findAll({
+        const exercises = await db.Exercise.findAll({
             where: {
                 id: {
                     [Op.in]: ids,

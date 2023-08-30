@@ -6,6 +6,7 @@ interface ProgramBody {
 interface ProgramQuery {
     ids?: string;
     before?: string;
+    finished?: string;
 }
 
 export { ProgramBody, ProgramQuery };

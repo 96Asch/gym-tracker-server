@@ -13,19 +13,12 @@ const makeDuplicateError = function (modelName: string, duplicateFields: string[
         `Instance already exists for fields [${duplicateFields.join(
             ','
         )}] for ${modelName}`,
-        401
-    );
-};
-
-const makeBindError = function (requiredFields: string[]) {
-    return new AppError(
-        `Could not parse request, missing fields: [${requiredFields.join(', ')}]`,
-        401
+        409
     );
 };
 
 const makeBadRequest = function (reason: string) {
-    return new AppError(reason, 401);
+    return new AppError(reason, 400);
 };
 
 const makeInternal = function (internalMessage: string) {
@@ -35,7 +28,6 @@ const makeInternal = function (internalMessage: string) {
 
 export default Object.freeze({
     makeDuplicateError,
-    makeBindError,
     makeBadRequest,
     makeInternal,
 });

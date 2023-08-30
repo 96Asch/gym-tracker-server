@@ -1,14 +1,14 @@
 import { Op, col } from 'sequelize';
-import { Program, IProgramDA, ProgramQuery } from '../model/program/';
-import { ProgramInterface } from '../sequelize';
-import buildSequelizeQuery from './querybuilder';
-import { errors } from '../model';
+import { Program, IProgramDA } from '../model/program/';
+import db from '../sequelize';
+import { buildSequelizeQuery } from './querybuilder';
+import { Query, errors } from '../model';
 
 export default class ProgramDataAccess implements IProgramDA {
     constructor() {}
 
     async insert(program: Program): Promise<Program> {
-        const createdProgram = await ProgramInterface.create({
+        const createdProgram = await db.Program.create({
             name: program.name as string,
             endDate: program.endDate as Date,
         });
@@ -20,15 +20,14 @@ export default class ProgramDataAccess implements IProgramDA {
         };
     }
 
-    async read(query: Program): Promise<Program[]> {
-        console.log('ProgramQuery:', query);
-        const statement = buildSequelizeQuery(query);
+    async read(queries: Query[]): Promise<Program[]> {
+        const statement = buildSequelizeQuery(queries);
         console.log(statement);
-        return ProgramInterface.findAll({ order: col('id'), ...statement });
+        return db.Program.findAll({ order: col('id'), ...statement });
     }
 
     async update(program: Program): Promise<Program> {
-        const retrievedProgram = await ProgramInterface.findByPk(program.id);
+        const retrievedProgram = await db.Program.findByPk(program.id);
 
         if (!retrievedProgram) {
             throw errors.makeBadRequest('given id does not exist');
@@ -47,7 +46,7 @@ export default class ProgramDataAccess implements IProgramDA {
     }
 
     async delete(ids: number[]): Promise<void> {
-        const programs = await ProgramInterface.findAll({
+        const programs = await db.Program.findAll({
             where: {
                 id: {
                     [Op.in]: ids,

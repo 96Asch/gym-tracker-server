@@ -1,4 +1,5 @@
-import { ProgramQuery, errors } from '../model';
+import { errors, queryBuilder } from '../model';
+import type { ProgramQuery, Query } from '../model';
 import error from '../model/error';
 import { Program } from '../model/program/program';
 import { IProgramDA } from '../model/program/program.data-access';
@@ -20,28 +21,30 @@ export default class ProgramService implements IProgramService {
     }
 
     async read(query: ProgramQuery): Promise<Program[]> {
-        query.before = query?.before?.trim();
-        query.ids = query?.ids?.trim();
-
-        if (query.before && Number.isNaN(Date.parse(query.before))) {
-            throw errors.makeBadRequest('query [before] must be a valid date');
-        }
+        const queries: Query[] = [];
 
         if (query.ids) {
-            const ids = query.ids.split(',');
-            const nans = ids.filter((id: string) => {
-                return Number.isNaN(parseInt(id));
-            });
-
-            if (nans.length > 0) {
-                throw errors.makeBadRequest(`query [ids] non-numbers: [${nans}]`);
+            const ids = query.ids.trim();
+            if (ids.includes('-')) {
+                queries.push(queryBuilder.makeRange('id', ids, true));
+            } else if (query.ids.includes(',')) {
+                queries.push(queryBuilder.makeList('id', ids, true));
+            } else {
+                queries.push(queryBuilder.makeSingle('id', ids, 'EQ'));
             }
         }
 
-        const programs = await this.programDA.read({
-            id: query.ids,
-            endDate: query.before ? new Date(query.before as string) : undefined,
-        });
+        if (query.before) {
+            const before = query.before.trim();
+
+            if (Number.isNaN(Date.parse(before))) {
+                throw errors.makeBadRequest('query [before] must be a valid date');
+            }
+
+            queries.push(queryBuilder.makeSingle('endDate', before, 'LessThanOrEqual'));
+        }
+
+        const programs = await this.programDA.read(queries);
         return programs;
     }
 

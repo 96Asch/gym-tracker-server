@@ -1,27 +1,52 @@
-import { Set, SetQuery } from '../model/set';
-import { ISetDA } from '../model/set/set.data-access';
-import SetInterface from '../sequelize/set';
+import type { Query } from '../model';
+import { Set, SetQuery, ISetDA, errors } from '../model/';
+import { SetResult } from '../model/set/set';
+import db from '../sequelize';
+import { buildSequelizeQuery } from './querybuilder';
 
-export class SetDA implements ISetDA {
+export class SetDataAccess implements ISetDA {
     constructor() {}
 
-    async insert(set: Set): Promise<Set> {
-        const createdSet = await SetInterface.create({
-            repetitions: set.repetitions,
-            programId: set.programId,
-            exerciseId: set.exerciseId,
-            weightInKg: set.weightInKg,
-            double: set.double,
+    async insert(set: Set): Promise<SetResult> {
+        const createdSet = await db.Set.create(
+            {
+                repetitions: set.repetitions,
+                weightInKg: set.weightInKg,
+                double: set.double,
+            },
+            {
+                returning: true,
+            }
+        );
+
+        const exercise = await db.Exercise.findByPk(set.exerciseId);
+        if (!exercise) {
+            throw errors.makeBadRequest('given exerciseId does not exist');
+        }
+
+        const program = await db.Program.findByPk(set.exerciseId);
+        if (!program) {
+            throw errors.makeBadRequest('given programId does not exist');
+        }
+
+        createdSet.setExercise(exercise);
+        createdSet.setProgram(program);
+
+        return { ...createdSet.dataValues, program: program, exercise: exercise };
+    }
+
+    async read(queries: Query[]): Promise<SetResult[]> {
+        const statement = buildSequelizeQuery(queries);
+        console.log(statement);
+        const sets = await db.Set.findAll({
+            ...statement,
+            include: [db.Set.associations.exercise, db.Set.associations.program],
         });
 
-        return createdSet;
+        return sets;
     }
 
-    read(query: SetQuery): Promise<Set[]> {
-        throw new Error('Method not implemented.');
-    }
-
-    update(set: Set): Promise<Set> {
+    update(set: Set): Promise<SetResult> {
         throw new Error('Method not implemented.');
     }
 
