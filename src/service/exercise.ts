@@ -7,8 +7,9 @@ import {
     queryBuilder,
 } from '../model';
 import type { Query } from '../model';
+import makeNumberedQuery from './idquery';
 
-export class ExerciseService implements IExerciseService {
+export default class ExerciseService implements IExerciseService {
     exerciseDA: IExerciseDA;
 
     constructor(exerciseDA: IExerciseDA) {
@@ -28,14 +29,7 @@ export class ExerciseService implements IExerciseService {
         const queries: Query[] = [];
 
         if (query.ids) {
-            const ids = query.ids.trim();
-            if (ids.includes('-')) {
-                queries.push(queryBuilder.makeRange('id', ids, true));
-            } else if (query.ids.includes(',')) {
-                queries.push(queryBuilder.makeList('id', ids, true));
-            } else {
-                queries.push(queryBuilder.makeSingle('id', ids, 'EQ'));
-            }
+            queries.push(makeNumberedQuery('id', query.ids));
         }
 
         if (query.targets) {

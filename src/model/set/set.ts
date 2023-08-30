@@ -18,11 +18,12 @@ export interface SetResult {
     exercise?: Exercise;
 }
 export type SetBody = Omit<Set, 'id'>;
+
 export interface SetQuery {
     ids?: string;
     repetitions?: string;
     weightInKg?: string;
-    programIds: string;
-    exerciseIds: string;
-    double: string;
+    programIds?: string;
+    exerciseIds?: string;
+    double?: string;
 }

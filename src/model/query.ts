@@ -59,25 +59,55 @@ const makeList = function (key: string, val: string, isNumber: boolean): Query {
     }
 
     const split = val.split(',');
+    const rangeNumbers: number[] = [];
 
-    const faulties = split.filter((val: string) => {
+    const filtered = split.filter((val: string) => {
         if (isNumber) {
-            return Number.isNaN(parseInt(val));
+            if (val.includes('-')) {
+                const range = val.split('-');
+
+                if (range.length != 2) {
+                    throw errors.makeInternal(
+                        'included range must be of format [num1]-[num2]]'
+                    );
+                }
+
+                const begin = parseInt(range[0]);
+                const end = parseInt(range[1]);
+
+                if (Number.isNaN(begin) || Number.isNaN(end)) {
+                    throw errors.makeInternal('numbers in range are non-numeric');
+                }
+
+                for (let number = begin; number <= end; ++number) {
+                    rangeNumbers.push(number);
+                }
+
+                return false;
+            }
+            const valToNum = parseInt(val);
+
+            if (Number.isNaN(valToNum)) {
+                throw errors.makeInternal(`${val} is non-numberic`);
+            }
         }
-        return false;
+        return true;
     });
 
-    if (faulties.length > 0) {
-        throw errors.makeInternal(`[${faulties}] are non-numeric`);
-    }
-
-    let value: string[] | number[] = split;
+    let value: string[] | number[] = filtered;
     if (isNumber) {
-        value = split.map((val: string) => {
-            return parseInt(val);
-        });
-    }
+        value = split
+            .map((val: string) => {
+                return parseInt(val);
+            })
+            .filter((num: number) => {
+                return !rangeNumbers.includes(num);
+            })
+            .sort();
 
+        value.push(...rangeNumbers);
+    }
+    console.log(value);
     return {
         key: key,
         operator: 'In',

@@ -40,7 +40,10 @@ export class SetDataAccess implements ISetDA {
         console.log(statement);
         const sets = await db.Set.findAll({
             ...statement,
-            include: [db.Set.associations.exercise, db.Set.associations.program],
+            include: [
+                db.associations.setBelongsToExercise,
+                db.associations.setBelongsToProgram,
+            ],
         });
 
         return sets;

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import type { Request, Response, NextFunction } from 'express';
-import type { SetBody } from '../model';
+import type { SetBody, SetQuery } from '../model';
 import { errors } from '../model';
 import { setService } from '../service';
 const setRoute = Router();
@@ -33,6 +33,20 @@ setRoute.post(
         try {
             const set = await setService.insert(body);
             res.status(201).json({ set: set });
+        } catch (error) {
+            next(error);
+        }
+    }
+);
+
+setRoute.get(
+    '/',
+    async (req: Request<{}, {}, {}, SetQuery>, res: Response, next: NextFunction) => {
+        const { query } = req;
+
+        try {
+            const sets = await setService.read(query);
+            res.status(200).json({ sets: sets });
         } catch (error) {
             next(error);
         }

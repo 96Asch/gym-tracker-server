@@ -1,6 +1,4 @@
-import Exercise from './exercise';
-import ExerciseDA from './exercise.data-access';
-import { ExerciseQuery } from './request';
+import type { Exercise, ExerciseQuery } from './exercise';
 
 interface IExerciseService {
     insert(fields: Exercise): Promise<Exercise>;

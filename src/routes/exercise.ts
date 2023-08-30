@@ -36,7 +36,7 @@ exerciseRoute.get(
         res: Response,
         next: NextFunction
     ) => {
-        const query = req.query;
+        const { query } = req;
 
         try {
             const exercises = await exerciseService.read(query);

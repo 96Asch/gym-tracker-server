@@ -1,9 +1,13 @@
 import { errors, queryBuilder } from '../model';
-import type { ProgramQuery, Query } from '../model';
+import type {} from '../model';
 import error from '../model/error';
-import { Program } from '../model/program/program';
-import { IProgramDA } from '../model/program/program.data-access';
-import { IProgramService } from '../model/program/program.service';
+import type {
+    Program,
+    IProgramDA,
+    IProgramService,
+    ProgramQuery,
+    Query,
+} from '../model/';
 import { formatDate } from '../util';
 
 export default class ProgramService implements IProgramService {

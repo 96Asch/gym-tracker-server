@@ -1,16 +1,9 @@
-import type {
-    IExerciseDA,
-    IProgramDA,
-    ISetDA,
-    ISetService,
-    Set,
-    SetQuery,
-} from '../model';
+import type { ISetDA, ISetService, Set, SetQuery } from '../model';
 import { errors, Query, queryBuilder } from '../model';
 import { SetResult } from '../model/set/set';
 import makeNumberedQuery from './idquery';
 
-export class SetService implements ISetService {
+export default class SetService implements ISetService {
     constructor(private readonly setDA: ISetDA) {}
 
     async insert(set: Set): Promise<SetResult> {
@@ -33,11 +26,11 @@ export class SetService implements ISetService {
         }
 
         if (query.exerciseIds) {
-            queries.push(makeNumberedQuery('id', query.exerciseIds));
+            queries.push(makeNumberedQuery('exerciseId', query.exerciseIds));
         }
 
         if (query.programIds) {
-            queries.push(makeNumberedQuery('id', query.exerciseIds));
+            queries.push(makeNumberedQuery('programId', query.programIds));
         }
 
         if (query.weightInKg) {

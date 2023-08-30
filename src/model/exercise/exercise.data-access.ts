@@ -1,6 +1,5 @@
 import { Query } from '../query';
-import Exercise from './exercise';
-import { ExerciseQuery } from './request';
+import type { Exercise } from './exercise';
 
 interface IExerciseDA {
     insert(fields: Exercise): Promise<Exercise>;

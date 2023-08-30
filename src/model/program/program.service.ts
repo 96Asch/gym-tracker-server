@@ -1,7 +1,6 @@
-import { Program } from './program';
-import { ProgramQuery } from './request';
+import type { Program, ProgramQuery } from './program';
 
-export interface IProgramService {
+export default interface IProgramService {
     insert(program: Program): Promise<Program>;
     read(query: ProgramQuery): Promise<Program[]>;
     update(program: Program): Promise<Program>;

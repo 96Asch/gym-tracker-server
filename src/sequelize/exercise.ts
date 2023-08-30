@@ -34,8 +34,8 @@ Exercise.init(
         },
     },
     {
+        tableName: 'exercises',
         sequelize: sequelizeInstance,
-        tableName: 'Exercises',
         timestamps: false,
     }
 );
