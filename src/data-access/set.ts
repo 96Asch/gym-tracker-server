@@ -19,12 +19,14 @@ export class SetDataAccess implements ISetDA {
             }
         );
 
-        const exercise = await db.Exercise.findByPk(set.exerciseId);
+        const exercise = await db.Exercise.findByPk(set.exerciseId, {
+            include: db.associations.exerciseHasManyMuscle,
+        });
         if (!exercise) {
             throw errors.makeBadRequest('given exerciseId does not exist');
         }
 
-        const program = await db.Program.findByPk(set.exerciseId);
+        const program = await db.Program.findByPk(set.programId);
         if (!program) {
             throw errors.makeBadRequest('given programId does not exist');
         }
@@ -37,13 +39,14 @@ export class SetDataAccess implements ISetDA {
 
     async read(queries: Query[]): Promise<SetResult[]> {
         const statement = buildSequelizeQuery(queries);
-        console.log(statement);
-        const sets = await db.Set.findAll({
+        return await db.Set.findAll({
             ...statement,
-            include: [db.Set.associations.exercise, db.Set.associations.program],
+            include: [
+                db.associations.setBelongsToExercise,
+                db.associations.setBelongsToProgram,
+                db.associations.muscleBelongsToManyExercise,
+            ],
         });
-
-        return sets;
     }
 
     update(set: Set): Promise<SetResult> {

@@ -1,11 +1,9 @@
-import Exercise from './exercise';
-import ExerciseDA from './exercise.data-access';
-import { ExerciseQuery } from './request';
+import type { Exercise, ExerciseQuery, ExerciseResult } from './exercise';
 
 interface IExerciseService {
-    insert(fields: Exercise): Promise<Exercise>;
-    read(query: ExerciseQuery): Promise<Exercise[]>;
-    update(fields: Exercise): Promise<Exercise>;
+    insert(fields: Exercise): Promise<ExerciseResult>;
+    read(query: ExerciseQuery): Promise<ExerciseResult[]>;
+    update(fields: Exercise): Promise<ExerciseResult>;
     delete(ids: number[]): Promise<void>;
 }
 

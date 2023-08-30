@@ -5,7 +5,7 @@ const url = `postgres://${env.PG_USER}:${env.PG_PASS}@${env.PG_HOST}:${env.PG_PO
 console.log(`Connecting to: ${url}`);
 const sequelizeInstance = new Sequelize(url);
 
-sequelizeInstance.sync({ force: true });
+sequelizeInstance.sync({ alter: true });
 
 const checkConnection = async function () {
     await sequelizeInstance.authenticate();

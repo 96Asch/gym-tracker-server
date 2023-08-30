@@ -1,6 +1,5 @@
-import { Program } from './program';
-import { IProgramDA } from './program.data-access';
-import { IProgramService } from './program.service';
-import { ProgramBody, ProgramQuery } from './request';
+import type IProgramDA from './program.data-access';
+import type IProgramService from './program.service';
+import type { Program, ProgramBody, ProgramQuery } from './program';
 
-export { Program, IProgramDA, IProgramService, ProgramBody, ProgramQuery };
+export type { Program, IProgramDA, IProgramService, ProgramBody, ProgramQuery };

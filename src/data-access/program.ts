@@ -22,8 +22,11 @@ export default class ProgramDataAccess implements IProgramDA {
 
     async read(queries: Query[]): Promise<Program[]> {
         const statement = buildSequelizeQuery(queries);
-        console.log(statement);
-        return db.Program.findAll({ order: col('id'), ...statement });
+        return await db.Program.findAll({
+            order: col('id'),
+            ...statement,
+            include: db.associations.programHasManySet,
+        });
     }
 
     async update(program: Program): Promise<Program> {

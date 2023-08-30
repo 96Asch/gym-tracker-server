@@ -1,5 +1,4 @@
 import {
-    Association,
     CreationOptional,
     DataTypes,
     HasOneGetAssociationMixin,
@@ -27,11 +26,6 @@ class Set extends Model<InferAttributes<Set>, InferCreationAttributes<Set>> {
 
     declare exercise?: NonAttribute<Exercise>;
     declare program?: NonAttribute<Program>;
-
-    declare static associations: {
-        exercise: Association<Set, Exercise>;
-        program: Association<Set, Program>;
-    };
 }
 
 Set.init(
@@ -59,9 +53,10 @@ Set.init(
         },
     },
     {
+        tableName: 'set',
         sequelize: sequelizeInstance,
         createdAt: false,
-        updatedAt: false,
+        updatedAt: true,
     }
 );
 

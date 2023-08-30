@@ -16,6 +16,12 @@ programRoute.post(
             return;
         }
 
+        if (!body.endDate) {
+            next(errors.makeBadRequest('endDate cannot be empty'));
+
+            return;
+        }
+
         if (Number.isNaN(Date.parse(body.endDate))) {
             next(errors.makeBadRequest('endDate is not a valid date'));
 

@@ -1,6 +1,12 @@
-import Exercise from './exercise';
-import IExerciseDA from './exercise.data-access';
-import IExerciseService from './exercise.service';
-import { ExerciseBody, ExerciseQuery } from './request';
+import type IExerciseDA from './exercise.data-access';
+import type IExerciseService from './exercise.service';
+import type { Exercise, ExerciseBody, ExerciseQuery, ExerciseResult } from './exercise';
 
-export { Exercise, IExerciseDA, IExerciseService, ExerciseBody, ExerciseQuery };
+export type {
+    Exercise,
+    IExerciseDA,
+    IExerciseService,
+    ExerciseBody,
+    ExerciseResult,
+    ExerciseQuery,
+};

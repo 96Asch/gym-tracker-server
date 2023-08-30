@@ -10,14 +10,17 @@ exerciseRoute.post(
     async (req: Request<{}, {}, ExerciseBody, {}>, res: Response, next: NextFunction) => {
         const { body } = req;
 
-        if (!body.name || !body.target) {
-            next(errors.makeBadRequest('name or target cannot be empty'));
+        if (!body.name || !body.muscleIds) {
+            next(errors.makeBadRequest('name or muscleIds cannot be empty'));
 
             return;
         }
 
         try {
-            const createdExercise = await exerciseService.insert(body);
+            const createdExercise = await exerciseService.insert({
+                name: body.name,
+                muscleIds: body.muscleIds,
+            });
             res.status(201).json({
                 exercise: createdExercise,
             });
@@ -36,7 +39,7 @@ exerciseRoute.get(
         res: Response,
         next: NextFunction
     ) => {
-        const query = req.query;
+        const { query } = req;
 
         try {
             const exercises = await exerciseService.read(query);
@@ -50,22 +53,30 @@ exerciseRoute.get(
 exerciseRoute.patch(
     '/:id',
     async (
-        req: Request<{ id: string }, {}, ExerciseBody, {}>,
+        req: Request<{ id?: string }, {}, ExerciseBody, {}>,
         res: Response,
         next: NextFunction
     ) => {
         const { body } = req;
+        const { id } = req.params;
 
-        if (!body.name || !body.target) {
-            next(errors.makeBadRequest('name or target must be omitted or non-empty'));
+        if (!id) {
+            next(errors.makeBadRequest('parameter id required'));
 
             return;
         }
+
+        if (Number.isNaN(parseInt(id))) {
+            next(errors.makeBadRequest(`parameter id: ${id} is non-numeric`));
+
+            return;
+        }
+
         try {
             const exercise = await exerciseService.update({
-                id: parseInt(req.params.id),
+                id: id,
                 name: body.name,
-                target: body.target,
+                muscleIds: body.muscleIds,
             });
 
             res.status(200).json({ exercise: exercise });

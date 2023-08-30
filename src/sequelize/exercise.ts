@@ -4,8 +4,16 @@ import {
     InferAttributes,
     CreationOptional,
     InferCreationAttributes,
+    NonAttribute,
+    BelongsToManyAddAssociationMixin,
+    BelongsToManyGetAssociationsMixin,
+    BelongsToManyCountAssociationsMixin,
+    BelongsToManyRemoveAssociationMixin,
+    BelongsToManyAddAssociationsMixin,
 } from 'sequelize';
 import { sequelizeInstance } from './sequelize';
+import { Muscle } from '../model';
+import { BelongsToManySetAssociationsMixin } from 'sequelize';
 
 class Exercise extends Model<
     InferAttributes<Exercise>,
@@ -13,7 +21,15 @@ class Exercise extends Model<
 > {
     declare id: CreationOptional<number>;
     declare name: string;
-    declare target: string;
+
+    declare addMuscle: BelongsToManyAddAssociationMixin<Muscle, number>;
+    declare addMuscles: BelongsToManyAddAssociationsMixin<Muscle, number[]>;
+    declare getMuscles: BelongsToManyGetAssociationsMixin<Muscle>;
+    declare setMuscles: BelongsToManySetAssociationsMixin<Muscle, number[]>;
+    declare countMuscles: BelongsToManyCountAssociationsMixin;
+    declare removeMuscle: BelongsToManyRemoveAssociationMixin<Muscle, number>;
+
+    declare muscles: NonAttribute<Muscle[]>;
 }
 
 Exercise.init(
@@ -28,14 +44,10 @@ Exercise.init(
             type: DataTypes.STRING,
             allowNull: false,
         },
-        target: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
     },
     {
+        tableName: 'exercises',
         sequelize: sequelizeInstance,
-        tableName: 'Exercises',
         timestamps: false,
     }
 );

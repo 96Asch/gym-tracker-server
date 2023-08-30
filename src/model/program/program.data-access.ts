@@ -1,8 +1,7 @@
-import { Query } from '../query';
-import { Program } from './program';
-import { ProgramQuery } from './request';
+import type { Query } from '../query';
+import type { Program, ProgramQuery } from './program';
 
-export interface IProgramDA {
+export default interface IProgramDA {
     insert(program: Program): Promise<Program>;
     read(queries: Query[]): Promise<Program[]>;
     update(program: Program): Promise<Program>;
