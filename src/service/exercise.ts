@@ -7,6 +7,7 @@ import {
     queryBuilder,
 } from '../model';
 import type { Query } from '../model';
+import { ExerciseResult } from '../model/exercise';
 import makeNumberedQuery from './idquery';
 
 export default class ExerciseService implements IExerciseService {
@@ -16,25 +17,28 @@ export default class ExerciseService implements IExerciseService {
         this.exerciseDA = exerciseDA;
     }
 
-    async insert(fields: Exercise): Promise<Exercise> {
+    async insert(fields: Exercise): Promise<ExerciseResult> {
         fields.name = fields?.name?.trim().toLowerCase();
-        fields.target = fields?.target?.trim().toLowerCase();
 
         const exercise = await this.exerciseDA.insert(fields);
 
         return exercise;
     }
 
-    async read(query: ExerciseQuery): Promise<Exercise[]> {
+    async read(query: ExerciseQuery): Promise<ExerciseResult[]> {
         const queries: Query[] = [];
 
         if (query.ids) {
             queries.push(makeNumberedQuery('id', query.ids));
         }
 
-        if (query.targets) {
+        if (query.name) {
             queries.push(
-                queryBuilder.makeSingle('target', query.targets.trim(), 'StartsWith')
+                queryBuilder.makeSingle(
+                    'target',
+                    query.name.trim().toLowerCase(),
+                    'StartsWith'
+                )
             );
         }
 
@@ -43,13 +47,12 @@ export default class ExerciseService implements IExerciseService {
         return exercises;
     }
 
-    async update(fields: Exercise): Promise<Exercise> {
+    async update(fields: Exercise): Promise<ExerciseResult> {
         if (!fields.id) {
             throw errors.makeBadRequest('id');
         }
 
         fields.name = fields?.name?.trim().toLowerCase();
-        fields.target = fields?.target?.trim().toLowerCase();
 
         const updatedExercise = await this.exerciseDA.update(fields);
         return updatedExercise;

@@ -1,4 +1,4 @@
-import { Exercise } from '../exercise';
+import { ExerciseResult } from '../exercise';
 import { Program } from '../program';
 
 export interface Set {
@@ -15,7 +15,7 @@ export interface SetResult {
     weightInKg: number;
     double: boolean;
     program?: Program;
-    exercise?: Exercise;
+    exercise?: ExerciseResult;
 }
 export type SetBody = Omit<Set, 'id'>;
 

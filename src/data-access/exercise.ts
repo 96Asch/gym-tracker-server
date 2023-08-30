@@ -2,18 +2,25 @@ import { Op, ValidationError, col } from 'sequelize';
 import { Exercise, IExerciseDA, Query, errors } from '../model';
 import db from '../sequelize';
 import { buildSequelizeQuery } from './querybuilder';
+import { ExerciseResult } from '../model/exercise/exercise';
 
 export default class ExerciseDataAccess implements IExerciseDA {
     constructor() {}
 
-    async insert(fields: Exercise): Promise<Exercise> {
+    async insert(fields: Exercise): Promise<ExerciseResult> {
         try {
             const exercise = await db.Exercise.create({
-                name: fields.name as string,
-                target: fields.target as string,
+                name: fields.name,
             });
 
-            return exercise;
+            const muscles = await db.Muscle.findAll({
+                where: {
+                    id: fields.muscleIds,
+                },
+            });
+
+            exercise.addMuscles(muscles);
+            return { ...exercise.dataValues, muscles: muscles };
         } catch (error) {
             if (error instanceof ValidationError) {
                 throw errors.makeDuplicateError('exercise', ['name']);
@@ -22,13 +29,19 @@ export default class ExerciseDataAccess implements IExerciseDA {
         }
     }
 
-    async read(queries: Query[]): Promise<Exercise[]> {
+    async read(queries: Query[]): Promise<ExerciseResult[]> {
         const statement = buildSequelizeQuery(queries);
         console.log(statement);
-        return await db.Exercise.findAll({ order: col('id'), ...statement });
+        const exercises = await db.Exercise.findAll({
+            order: col('id'),
+            ...statement,
+            include: db.associations.muscleBelongsToManyExercise,
+        });
+
+        return exercises;
     }
 
-    async update(fields: Exercise): Promise<Exercise> {
+    async update(fields: Exercise): Promise<ExerciseResult> {
         const exercise = await db.Exercise.findByPk(fields.id);
 
         if (!exercise) {
@@ -36,15 +49,14 @@ export default class ExerciseDataAccess implements IExerciseDA {
         }
 
         exercise.name = fields?.name ?? exercise.name;
-        exercise.target = fields?.target ?? exercise.target;
+
+        const muscles = await db.Muscle.findAll({ where: { id: fields.muscleIds } });
+
+        exercise.setMuscles(muscles);
 
         exercise.save({ omitNull: true });
 
-        return {
-            id: exercise.id,
-            name: exercise.name,
-            target: exercise.target,
-        };
+        return exercise;
     }
 
     async delete(ids: number[]): Promise<void> {

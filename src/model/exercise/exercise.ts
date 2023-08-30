@@ -1,14 +1,22 @@
+import { Muscle } from '../muscle';
+
 interface Exercise {
     id?: number | string;
-    name?: string;
-    target?: string;
+    name: string;
+    muscleIds: number[];
 }
 
 type ExerciseBody = Omit<Exercise, 'id'>;
 
-interface ExerciseQuery {
-    ids?: string;
-    targets?: string;
+interface ExerciseResult {
+    id: number;
+    name: string;
+    muscles: Muscle[];
 }
 
-export type { Exercise, ExerciseBody, ExerciseQuery };
+interface ExerciseQuery {
+    ids?: string;
+    name?: string;
+}
+
+export type { Exercise, ExerciseBody, ExerciseResult, ExerciseQuery };

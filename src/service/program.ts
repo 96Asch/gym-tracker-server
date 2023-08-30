@@ -9,6 +9,7 @@ import type {
     Query,
 } from '../model/';
 import { formatDate } from '../util';
+import makeNumberedQuery from './idquery';
 
 export default class ProgramService implements IProgramService {
     constructor(private readonly programDA: IProgramDA) {}
@@ -28,14 +29,11 @@ export default class ProgramService implements IProgramService {
         const queries: Query[] = [];
 
         if (query.ids) {
-            const ids = query.ids.trim();
-            if (ids.includes('-')) {
-                queries.push(queryBuilder.makeRange('id', ids, true));
-            } else if (query.ids.includes(',')) {
-                queries.push(queryBuilder.makeList('id', ids, true));
-            } else {
-                queries.push(queryBuilder.makeSingle('id', ids, 'EQ'));
-            }
+            queries.push(makeNumberedQuery('id', query.ids));
+        }
+
+        if (query.finished != null) {
+            queries.push(queryBuilder.makeSingle('finished', query.finished, 'EQ'));
         }
 
         if (query.before) {

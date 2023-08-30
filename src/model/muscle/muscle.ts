@@ -6,8 +6,8 @@ interface Muscle {
 type MuscleBody = Omit<Muscle, 'id'>;
 
 interface MuscleQuery {
-    ids?: number;
-    name: string;
+    ids?: string;
+    name?: string;
 }
 
 export type { Muscle, MuscleBody, MuscleQuery };

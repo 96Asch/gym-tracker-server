@@ -19,12 +19,14 @@ export class SetDataAccess implements ISetDA {
             }
         );
 
-        const exercise = await db.Exercise.findByPk(set.exerciseId);
+        const exercise = await db.Exercise.findByPk(set.exerciseId, {
+            include: db.associations.exerciseHasManyMuscle,
+        });
         if (!exercise) {
             throw errors.makeBadRequest('given exerciseId does not exist');
         }
 
-        const program = await db.Program.findByPk(set.exerciseId);
+        const program = await db.Program.findByPk(set.programId);
         if (!program) {
             throw errors.makeBadRequest('given programId does not exist');
         }
@@ -42,6 +44,7 @@ export class SetDataAccess implements ISetDA {
             include: [
                 db.associations.setBelongsToExercise,
                 db.associations.setBelongsToProgram,
+                db.associations.muscleBelongsToManyExercise,
             ],
         });
     }
