@@ -37,16 +37,13 @@ export class SetDataAccess implements ISetDA {
 
     async read(queries: Query[]): Promise<SetResult[]> {
         const statement = buildSequelizeQuery(queries);
-        console.log(statement);
-        const sets = await db.Set.findAll({
+        return await db.Set.findAll({
             ...statement,
             include: [
                 db.associations.setBelongsToExercise,
                 db.associations.setBelongsToProgram,
             ],
         });
-
-        return sets;
     }
 
     update(set: Set): Promise<SetResult> {

@@ -3,7 +3,7 @@ import Program from './program';
 import Set from './set';
 import { checkConnection } from './sequelize';
 
-const exhasManyProgram = Program.hasMany(Set, {
+const programHasManySet = Program.hasMany(Set, {
     sourceKey: 'id',
     foreignKey: 'programId',
 });
@@ -24,7 +24,7 @@ const setBelongsToExercise = Set.belongsTo(Exercise, {
 
 const associations = Object.freeze({
     exHasManySet,
-    exhasManyProgram,
+    programHasManySet,
     setBelongsToExercise,
     setBelongsToProgram,
 });

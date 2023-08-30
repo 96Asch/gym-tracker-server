@@ -102,8 +102,7 @@ const makeList = function (key: string, val: string, isNumber: boolean): Query {
             })
             .filter((num: number) => {
                 return !rangeNumbers.includes(num);
-            })
-            .sort();
+            });
 
         value.push(...rangeNumbers);
     }
