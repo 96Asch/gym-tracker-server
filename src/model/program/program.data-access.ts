@@ -1,5 +1,5 @@
 import type { Query } from '../query';
-import type { Program, ProgramQuery } from './program';
+import type { Program } from './program';
 
 export default interface IProgramDA {
     insert(program: Program): Promise<Program>;

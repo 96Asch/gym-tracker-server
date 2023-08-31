@@ -4,11 +4,10 @@ import { Program } from '../program';
 export interface Set {
     id?: number;
     repetitions?: number;
-    programId?: number;
+    programExerciseId?: number;
     exerciseId?: number;
     weightInKg?: number;
     double?: boolean;
-    shouldLog: boolean;
 }
 
 export interface SetResult {
@@ -16,9 +15,7 @@ export interface SetResult {
     repetitions: number;
     weightInKg: number;
     double: boolean;
-    performedOn?: Date;
-    program?: Program;
-    exercise?: ExerciseResult;
+    createAt?: Date;
 }
 
 export type SetBody = Omit<Set, 'id'>;

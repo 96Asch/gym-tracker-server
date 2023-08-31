@@ -4,6 +4,7 @@ import {
     Muscle,
     MuscleQuery,
     Query,
+    QueryOperator,
     queryBuilder,
 } from '../model';
 import makeNumberedQuery from './idquery';
@@ -17,7 +18,7 @@ export default class MuscleService implements IMuscleService {
         return this.muscleDA.insert(fields);
     }
     async read(query: MuscleQuery): Promise<Muscle[]> {
-        const queries = this.setQueryToQueries(query);
+        const queries = this.setQueryToQueries(query, 'StartsWith');
         return this.muscleDA.read(queries);
     }
 
@@ -28,7 +29,7 @@ export default class MuscleService implements IMuscleService {
     }
 
     async delete(query: MuscleQuery): Promise<void> {
-        const queries = this.setQueryToQueries(query);
+        const queries = this.setQueryToQueries(query, 'EQ');
 
         if (queries.length == 0) {
             return;
@@ -37,7 +38,7 @@ export default class MuscleService implements IMuscleService {
         await this.muscleDA.delete(queries);
     }
 
-    setQueryToQueries(query: MuscleQuery): Query[] {
+    setQueryToQueries(query: MuscleQuery, nameOperator: QueryOperator): Query[] {
         const queries: Query[] = [];
 
         if (query.ids) {
@@ -46,7 +47,11 @@ export default class MuscleService implements IMuscleService {
 
         if (query.name) {
             queries.push(
-                queryBuilder.makeSingle('name', query.name.trim().toLowerCase(), 'EQ')
+                queryBuilder.makeSingle(
+                    'name',
+                    query.name.trim().toLowerCase(),
+                    nameOperator
+                )
             );
         }
 

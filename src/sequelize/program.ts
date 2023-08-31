@@ -5,29 +5,25 @@ import {
     CreationOptional,
     DataTypes,
     HasManyAddAssociationMixin,
-    HasManyGetAssociationsMixin,
-    HasManyCountAssociationsMixin,
+    HasManyAddAssociationsMixin,
+    HasManyCreateAssociationMixin,
     HasManyRemoveAssociationMixin,
     NonAttribute,
-    HasManyAddAssociationsMixin,
 } from 'sequelize';
-import Set from './set';
 import { sequelizeInstance } from './sequelize';
-import { HasManySetAssociationsMixin } from 'sequelize';
+import ProgramExercise from './programexercise';
 
 class Program extends Model<InferAttributes<Program>, InferCreationAttributes<Program>> {
     declare id: CreationOptional<number>;
     declare name: string;
     declare endDate: Date;
 
-    declare addSet: HasManyAddAssociationMixin<Set, number>;
-    declare addSets: HasManyAddAssociationsMixin<Set, number[]>;
-    declare setSets: HasManySetAssociationsMixin<Set, number[]>;
-    declare getSets: HasManyGetAssociationsMixin<Set>;
-    declare countSets: HasManyCountAssociationsMixin;
-    declare removeSet: HasManyRemoveAssociationMixin<Set, number>;
+    declare addProgramExercise: HasManyAddAssociationMixin<ProgramExercise, number>;
+    declare addProgramExercises: HasManyAddAssociationsMixin<ProgramExercise, number[]>;
+    declare createProgramExercise: HasManyCreateAssociationMixin<ProgramExercise>;
+    declare removeProgramExercise: HasManyRemoveAssociationMixin<ProgramExercise, number>;
 
-    declare sets: NonAttribute<Set[]>;
+    declare programExercises?: NonAttribute<ProgramExercise>;
 }
 
 Program.init(

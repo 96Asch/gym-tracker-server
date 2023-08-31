@@ -4,38 +4,42 @@ import { Set, SetQuery, ISetDA, errors } from '../model/';
 import { SetResult } from '../model/set/set';
 import db from '../sequelize';
 import { buildSequelizeQuery } from './querybuilder';
+import { transaction } from '../sequelize/sequelize';
 
 export class SetDataAccess implements ISetDA {
     constructor() {}
 
-    async insert(set: Set): Promise<SetResult> {
-        const createdSet = await db.Set.create(
-            {
-                repetitions: set.repetitions!,
-                weightInKg: set.weightInKg!,
-                double: set.double!,
-            },
-            {
-                returning: true,
+    async insert(fields: Set): Promise<SetResult> {
+        const transaction = await db.transaction();
+
+        try {
+            const set = await db.Set.create({
+                repetitions: fields.repetitions!,
+                weightInKg: fields.weightInKg!,
+                double: fields.double!,
+            });
+
+            const programExercise = await db.ProgramExercise.findByPk(
+                fields.programExerciseId
+            );
+
+            if (!programExercise) {
+                throw errors.makeBadRequest('programExerciseId does not exist');
             }
-        );
 
-        const exercise = await db.Exercise.findByPk(set.exerciseId, {
-            include: db.associations.exerciseHasManyMuscle,
-        });
-        if (!exercise) {
-            throw errors.makeBadRequest('given exerciseId does not exist');
+            await programExercise.addSet(set, { transaction: transaction });
+            await transaction.commit();
+
+            return await set.reload({
+                include: db.associations.setBelongsToProgramExercise,
+            });
+        } catch (error) {
+            transaction.rollback();
+            if (error instanceof ValidationError) {
+                throw errors.makeBadRequestVE(error);
+            }
+            throw error;
         }
-
-        const program = await db.Program.findByPk(set.programId);
-        if (!program) {
-            throw errors.makeBadRequest('given programId does not exist');
-        }
-
-        createdSet.setExercise(exercise);
-        createdSet.setProgram(program);
-
-        return { ...createdSet.dataValues, program: program, exercise: exercise };
     }
 
     async read(queries: Query[]): Promise<SetResult[]> {
@@ -47,6 +51,7 @@ export class SetDataAccess implements ISetDA {
     }
 
     async update(fields: Set): Promise<SetResult> {
+        const transaction = await db.transaction();
         try {
             const set = await db.Set.findByPk(fields.id, {
                 include: db.associations.exerciseHasManyMuscle,
@@ -60,35 +65,28 @@ export class SetDataAccess implements ISetDA {
             set.weightInKg = fields.weightInKg ?? set.weightInKg;
             set.double = fields.double ?? set.double;
 
-            if (fields.shouldLog) {
-                set.performedOn = new Date();
-            }
+            if (fields.programExerciseId) {
+                const programExercise = await db.ProgramExercise.findByPk(
+                    fields.programExerciseId
+                );
 
-            if (fields.exerciseId && fields.exerciseId != 0) {
-                const exercise = await db.Exercise.findByPk(fields.exerciseId, {
-                    include: db.associations.exerciseHasManyMuscle,
-                });
-                if (!exercise) {
-                    throw errors.makeBadRequest('given exerciseId does not exist');
+                if (!programExercise) {
+                    throw errors.makeBadRequest('programExerciseId does not exist');
                 }
-
-                await set.setExercise(exercise);
+                await programExercise.addSet(set, { transaction: transaction });
             }
 
-            if (fields.programId && fields.programId != 0) {
-                const program = await db.Program.findByPk(fields.programId);
-                if (!program) {
-                    throw errors.makeBadRequest('given programId does not exist');
-                }
+            const updatedSet = await set.save({
+                omitNull: true,
+                transaction: transaction,
+            });
+            await transaction.commit();
 
-                await set.setProgram(program);
-            }
-
-            const updatedSet = await set.save({ omitNull: true });
             return updatedSet.reload({
-                include: { all: true, nested: true },
+                include: [db.associations.setBelongsToProgramExercise],
             });
         } catch (error) {
+            transaction.rollback();
             if (error instanceof ValidationError) {
                 throw errors.makeDuplicateError('exercise', ['name']);
             }
