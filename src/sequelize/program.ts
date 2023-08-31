@@ -9,9 +9,11 @@ import {
     HasManyCountAssociationsMixin,
     HasManyRemoveAssociationMixin,
     NonAttribute,
+    HasManyAddAssociationsMixin,
 } from 'sequelize';
 import Set from './set';
 import { sequelizeInstance } from './sequelize';
+import { HasManySetAssociationsMixin } from 'sequelize';
 
 class Program extends Model<InferAttributes<Program>, InferCreationAttributes<Program>> {
     declare id: CreationOptional<number>;
@@ -19,6 +21,8 @@ class Program extends Model<InferAttributes<Program>, InferCreationAttributes<Pr
     declare endDate: Date;
 
     declare addSet: HasManyAddAssociationMixin<Set, number>;
+    declare addSets: HasManyAddAssociationsMixin<Set, number[]>;
+    declare setSets: HasManySetAssociationsMixin<Set, number[]>;
     declare getSets: HasManyGetAssociationsMixin<Set>;
     declare countSets: HasManyCountAssociationsMixin;
     declare removeSet: HasManyRemoveAssociationMixin<Set, number>;

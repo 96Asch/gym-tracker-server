@@ -26,11 +26,32 @@ export default class MuscleDataAccess implements IMuscleDA {
         return await db.Muscle.findAll({ order: col('id'), ...statement });
     }
 
-    async update(muscle: Muscle): Promise<Muscle> {
-        throw new Error('Method not implemented.');
+    async update(fields: Muscle): Promise<Muscle> {
+        try {
+            const muscle = await db.Muscle.findByPk(fields.id);
+
+            if (!muscle) {
+                throw errors.makeBadRequest(`record with id ${fields.id} does not exist`);
+            }
+
+            if (fields.name != '') {
+                muscle.name = fields.name;
+            }
+
+            return await muscle.save({ omitNull: true });
+        } catch (error) {
+            if (error instanceof ValidationError) {
+                throw errors.makeDuplicateError('exercise', ['name']);
+            }
+            throw error;
+        }
     }
 
-    async delete(ids: number[]): Promise<void> {
-        throw new Error('Method not implemented.');
+    async delete(queries: Query[]): Promise<void> {
+        const statement = buildSequelizeQuery(queries);
+        const muscles = await db.Muscle.findAll(statement);
+        muscles.forEach((muscle) => {
+            muscle.destroy();
+        });
     }
 }

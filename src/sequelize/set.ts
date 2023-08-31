@@ -18,6 +18,7 @@ class Set extends Model<InferAttributes<Set>, InferCreationAttributes<Set>> {
     declare repetitions: number;
     declare weightInKg: number;
     declare double: boolean;
+    declare performedOn?: Date;
 
     declare setProgram: HasOneSetAssociationMixin<Program, number>;
     declare getProgram: HasOneGetAssociationMixin<Program>;
@@ -51,12 +52,15 @@ Set.init(
             type: DataTypes.BOOLEAN,
             defaultValue: false,
         },
+        performedOn: {
+            allowNull: true,
+            type: DataTypes.DATEONLY,
+        },
     },
     {
         tableName: 'set',
         sequelize: sequelizeInstance,
-        createdAt: false,
-        updatedAt: true,
+        timestamps: false,
     }
 );
 

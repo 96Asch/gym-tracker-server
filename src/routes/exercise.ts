@@ -53,20 +53,15 @@ exerciseRoute.get(
 exerciseRoute.patch(
     '/:id',
     async (
-        req: Request<{ id?: string }, {}, ExerciseBody, {}>,
+        req: Request<{ id: string }, {}, ExerciseBody, {}>,
         res: Response,
         next: NextFunction
     ) => {
         const { body } = req;
         const { id } = req.params;
 
-        if (!id) {
-            next(errors.makeBadRequest('parameter id required'));
-
-            return;
-        }
-
-        if (Number.isNaN(parseInt(id))) {
+        const exerciseId = parseInt(id);
+        if (Number.isNaN(exerciseId)) {
             next(errors.makeBadRequest(`parameter id: ${id} is non-numeric`));
 
             return;
@@ -74,12 +69,30 @@ exerciseRoute.patch(
 
         try {
             const exercise = await exerciseService.update({
-                id: id,
+                id: exerciseId,
                 name: body.name,
                 muscleIds: body.muscleIds,
             });
 
             res.status(200).json({ exercise: exercise });
+        } catch (error) {
+            next(error);
+        }
+    }
+);
+
+exerciseRoute.delete(
+    '/',
+    async (
+        req: Request<{}, {}, {}, ExerciseQuery>,
+        res: Response,
+        next: NextFunction
+    ) => {
+        const { query } = req;
+
+        try {
+            exerciseService.delete(query);
+            res.sendStatus(202);
         } catch (error) {
             next(error);
         }

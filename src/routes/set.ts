@@ -10,9 +10,6 @@ setRoute.post(
     async (req: Request<{}, {}, SetBody, {}>, res: Response, next: NextFunction) => {
         const { body } = req;
 
-        console.log(body);
-        console.log(body.double);
-
         if (
             body.double == null ||
             !body.exerciseId ||
@@ -31,7 +28,7 @@ setRoute.post(
         }
 
         try {
-            const set = await setService.insert(body);
+            const set = await setService.insert({ ...body, shouldLog: false });
             res.status(201).json({ set: set });
         } catch (error) {
             next(error);
@@ -47,6 +44,71 @@ setRoute.get(
         try {
             const sets = await setService.read(query);
             res.status(200).json({ sets: sets });
+        } catch (error) {
+            next(error);
+        }
+    }
+);
+
+setRoute.patch(
+    '/:id',
+    async (
+        req: Request<{ id: string }, {}, SetBody, {}>,
+        res: Response,
+        next: NextFunction
+    ) => {
+        const { body } = req;
+        const { id } = req.params;
+
+        const setId = parseInt(id);
+        if (Number.isNaN(setId)) {
+            next(errors.makeBadRequest('given parameter id is non-numeric'));
+
+            return;
+        }
+
+        try {
+            const set = await setService.update({ id: setId, ...body, shouldLog: false });
+            res.status(201).json({ set: set });
+        } catch (error) {
+            next(error);
+        }
+    }
+);
+
+setRoute.patch(
+    '/:id/log',
+    async (
+        req: Request<{ id: string }, {}, {}, {}>,
+        res: Response,
+        next: NextFunction
+    ) => {
+        const { id } = req.params;
+
+        const setId = parseInt(id);
+        if (Number.isNaN(setId)) {
+            next(errors.makeBadRequest('given parameter id is non-numeric'));
+
+            return;
+        }
+
+        try {
+            const set = await setService.update({ id: setId, shouldLog: true });
+            res.status(201).json({ set: set });
+        } catch (error) {
+            next(error);
+        }
+    }
+);
+
+setRoute.delete(
+    '/',
+    async (req: Request<{}, {}, {}, SetQuery>, res: Response, next: NextFunction) => {
+        const { query } = req;
+
+        try {
+            setService.delete(query);
+            res.sendStatus(202);
         } catch (error) {
             next(error);
         }

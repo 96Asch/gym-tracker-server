@@ -55,4 +55,56 @@ programRoute.get(
     }
 );
 
+programRoute.patch(
+    '/:id',
+    async (
+        req: Request<{ id: string }, {}, ProgramBody, {}>,
+        res: Response,
+        next: NextFunction
+    ) => {
+        const { body } = req;
+        const { id } = req.params;
+
+        const programId = parseInt(id);
+        if (Number.isNaN(programId)) {
+            next(errors.makeBadRequest('given parameter id is non-numeric'));
+
+            return;
+        }
+
+        if (body.endDate && Number.isNaN(Date.parse(body.endDate))) {
+            next(errors.makeBadRequest('endDate is not a valid date'));
+
+            return;
+        }
+
+        try {
+            const program = await programService.update({
+                id: programId,
+                name: body.name,
+                setIds: body.setIds,
+                endDate: body.endDate ? new Date(body.endDate) : undefined,
+            });
+
+            res.status(201).json({ program: program });
+        } catch (error) {
+            next(error);
+        }
+    }
+);
+
+programRoute.delete(
+    '/',
+    async (req: Request<{}, {}, {}, ProgramQuery>, res: Response, next: NextFunction) => {
+        const { query } = req;
+
+        try {
+            programService.delete(query);
+            res.sendStatus(202);
+        } catch (error) {
+            next(error);
+        }
+    }
+);
+
 export default programRoute;

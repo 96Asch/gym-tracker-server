@@ -3,7 +3,7 @@ import type { Set, SetQuery, SetResult } from './set';
 
 export interface ISetDA {
     insert(set: Set): Promise<SetResult>;
-    read(query: Query[]): Promise<SetResult[]>;
+    read(queries: Query[]): Promise<SetResult[]>;
     update(set: Set): Promise<SetResult>;
-    delete(query: SetQuery): Promise<void>;
+    delete(queries: Query[]): Promise<void>;
 }
