@@ -8,8 +8,7 @@ export default class SetService implements ISetService {
 
     async insert(set: Set): Promise<SetResult> {
         if (
-            !set.programId ||
-            !set.exerciseId ||
+            !set.programExerciseId ||
             !set.repetitions ||
             !set.weightInKg ||
             !set.double
@@ -39,11 +38,11 @@ export default class SetService implements ISetService {
         }
 
         if (fields.exerciseId && fields.exerciseId <= 0) {
-            throw errors.makeBadRequest('[exerciseId] cannot be empty or 0');
+            throw errors.makeBadRequest('[exerciseId] cannot 0');
         }
 
-        if (fields.programId && fields.programId <= 0) {
-            throw errors.makeBadRequest('[programId] cannot be empty or 0');
+        if (fields.programExerciseId && fields.programExerciseId <= 0) {
+            throw errors.makeBadRequest('[programExerciseId] cannot be 0');
         }
 
         if (fields.repetitions && fields.repetitions < 0) {
@@ -61,6 +60,7 @@ export default class SetService implements ISetService {
         const queries = this.setQueryToQueries(query);
 
         if (queries.length == 0) {
+            console.log('nothing');
             return;
         }
 
@@ -92,6 +92,10 @@ export default class SetService implements ISetService {
 
         if (query.double) {
             queries.push(queryBuilder.makeSingle('double', query.double, 'EQ'));
+        }
+
+        if (query.nested) {
+            queries.push(queryBuilder.makeNested());
         }
 
         return queries;

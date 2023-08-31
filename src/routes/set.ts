@@ -12,8 +12,7 @@ setRoute.post(
 
         if (
             body.double == null ||
-            !body.exerciseId ||
-            !body.programId ||
+            !body.programExerciseId ||
             !body.repetitions ||
             !body.weightInKg
         ) {
@@ -21,14 +20,14 @@ setRoute.post(
 
             return;
         }
-        if (body.exerciseId <= 0 || body.programId <= 0) {
-            next(errors.makeBadRequest('[exerciseId, programId] cannot be empty or 0'));
+        if (body.programExerciseId <= 0) {
+            next(errors.makeBadRequest('[programExerciseId] cannot be empty or 0'));
 
             return;
         }
 
         try {
-            const set = await setService.insert({ ...body, shouldLog: false });
+            const set = await setService.insert({ ...body });
             res.status(201).json({ set: set });
         } catch (error) {
             next(error);
@@ -42,7 +41,7 @@ setRoute.get(
         const { query } = req;
 
         try {
-            const sets = await setService.read(query);
+            const sets = await setService.read({ ...query });
             res.status(200).json({ sets: sets });
         } catch (error) {
             next(error);
@@ -68,7 +67,7 @@ setRoute.patch(
         }
 
         try {
-            const set = await setService.update({ id: setId, ...body, shouldLog: false });
+            const set = await setService.update({ id: setId, ...body });
             res.status(201).json({ set: set });
         } catch (error) {
             next(error);
@@ -93,7 +92,7 @@ setRoute.patch(
         }
 
         try {
-            const set = await setService.update({ id: setId, shouldLog: true });
+            const set = await setService.update({ id: setId });
             res.status(201).json({ set: set });
         } catch (error) {
             next(error);

@@ -7,13 +7,19 @@ export default class MuscleDataAccess implements IMuscleDA {
     constructor() {}
 
     async insert(fields: Muscle): Promise<Muscle> {
+        const transaction = await db.transaction();
         try {
-            const muscle = await db.Muscle.create({
-                name: fields.name,
-            });
+            const muscle = await db.Muscle.create(
+                {
+                    name: fields.name,
+                },
+                { transaction: transaction }
+            );
+            await transaction.commit();
 
             return muscle;
         } catch (error) {
+            transaction.rollback();
             if (error instanceof ValidationError) {
                 throw errors.makeDuplicateError('exercise', ['name']);
             }
@@ -27,8 +33,11 @@ export default class MuscleDataAccess implements IMuscleDA {
     }
 
     async update(fields: Muscle): Promise<Muscle> {
+        const transaction = await db.transaction();
         try {
-            const muscle = await db.Muscle.findByPk(fields.id);
+            const muscle = await db.Muscle.findByPk(fields.id, {
+                transaction: transaction,
+            });
 
             if (!muscle) {
                 throw errors.makeBadRequest(`record with id ${fields.id} does not exist`);
@@ -38,8 +47,15 @@ export default class MuscleDataAccess implements IMuscleDA {
                 muscle.name = fields.name;
             }
 
-            return await muscle.save({ omitNull: true });
+            const updatedMuscle = await muscle.save({
+                omitNull: true,
+                transaction: transaction,
+            });
+            await transaction.commit();
+
+            return await updatedMuscle.reload({ include: { all: true, nested: true } });
         } catch (error) {
+            transaction.rollback();
             if (error instanceof ValidationError) {
                 throw errors.makeDuplicateError('exercise', ['name']);
             }
@@ -49,9 +65,6 @@ export default class MuscleDataAccess implements IMuscleDA {
 
     async delete(queries: Query[]): Promise<void> {
         const statement = buildSequelizeQuery(queries);
-        const muscles = await db.Muscle.findAll(statement);
-        muscles.forEach((muscle) => {
-            muscle.destroy();
-        });
+        await db.Muscle.destroy(statement);
     }
 }

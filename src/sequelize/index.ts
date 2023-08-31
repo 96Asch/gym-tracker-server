@@ -2,52 +2,71 @@ import Exercise from './exercise';
 import Program from './program';
 import Set from './set';
 import Muscle from './muscle';
-import { checkConnection } from './sequelize';
+import ProgramExercise from './programexercise';
+import { checkConnection, transaction } from './sequelize';
 
-const programHasManySet = Program.hasMany(Set, {
-    sourceKey: 'id',
-    foreignKey: 'programId',
-});
-
-const exHasManySet = Exercise.hasMany(Set, {
-    sourceKey: 'id',
+const muscleBelongsToManyExercise = Muscle.belongsToMany(Exercise, {
+    through: 'targets',
     foreignKey: 'exerciseId',
-});
-
-const setBelongsToProgram = Set.belongsTo(Program, {
-    targetKey: 'id',
-    foreignKey: 'programId',
-});
-const setBelongsToExercise = Set.belongsTo(Exercise, {
-    targetKey: 'id',
-    foreignKey: 'exerciseId',
+    timestamps: false,
 });
 
 const exerciseHasManyMuscle = Exercise.belongsToMany(Muscle, {
-    through: 'targetedMuscles',
+    through: 'targets',
     foreignKey: 'muscleId',
     timestamps: false,
 });
-const muscleBelongsToManyExercise = Muscle.belongsToMany(Exercise, {
-    through: 'targetedMuscles',
+
+const programExerciseBelongsToOneExercise = ProgramExercise.belongsTo(Exercise, {
+    foreignKey: { name: 'exerciseId' },
+    targetKey: 'id',
+});
+
+const exerciseHasOneProgramExercise = Exercise.hasOne(ProgramExercise, {
     foreignKey: 'exerciseId',
-    timestamps: false,
+    sourceKey: 'id',
+});
+
+const programExerciseHasManySet = ProgramExercise.hasMany(Set, {
+    sourceKey: 'id',
+    foreignKey: { name: 'programExerciseId' },
+    onDelete: 'CASCADE',
+});
+
+const setBelongsToProgramExercise = Set.belongsTo(ProgramExercise, {
+    targetKey: 'id',
+    foreignKey: { name: 'programExerciseId' },
+    onDelete: 'CASCADE',
+});
+
+const programHasManyProgramExercise = Program.hasMany(ProgramExercise, {
+    foreignKey: 'programId',
+    sourceKey: 'id',
+});
+
+const programExerciseBelongsToOneProgram = ProgramExercise.belongsTo(Program, {
+    foreignKey: { name: 'programId' },
+    targetKey: 'id',
 });
 
 const associations = Object.freeze({
-    exHasManySet,
-    programHasManySet,
-    setBelongsToExercise,
-    setBelongsToProgram,
     exerciseHasManyMuscle,
     muscleBelongsToManyExercise,
+    programExerciseBelongsToOneExercise,
+    exerciseHasOneProgramExercise,
+    programExerciseHasManySet,
+    setBelongsToProgramExercise,
+    programHasManyProgramExercise,
+    programExerciseBelongsToOneProgram,
 });
 
 export default Object.freeze({
     Exercise,
     Program,
+    ProgramExercise,
     Set,
     Muscle,
     checkConnection,
+    transaction,
     associations,
 });

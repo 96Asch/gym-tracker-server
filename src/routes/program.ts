@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import type { Request, Response, NextFunction } from 'express';
-import { programService } from '../service';
+import { programExerciseService, programService } from '../service';
 import { ProgramBody, ProgramQuery, errors } from '../model/';
 
 const programRoute = Router();
@@ -49,6 +49,26 @@ programRoute.get(
         try {
             const programs = await programService.read(query);
             res.status(200).json({ programs: programs });
+        } catch (error) {
+            next(error);
+        }
+    }
+);
+
+programRoute.get(
+    '/:ids/exercises',
+    async (
+        req: Request<{ id: string }, {}, {}, {}>,
+        res: Response,
+        next: NextFunction
+    ) => {
+        const { id } = req.params;
+
+        try {
+            const programExercises = await programExerciseService.read({
+                programIds: id,
+            });
+            res.status(200).json({ programExercises: programExercises });
         } catch (error) {
             next(error);
         }

@@ -8,10 +8,14 @@ export default class ExerciseDataAccess implements IExerciseDA {
     constructor() {}
 
     async insert(fields: Exercise): Promise<ExerciseResult> {
+        const transaction = await db.transaction();
         try {
-            const exercise = await db.Exercise.create({
-                name: fields.name!,
-            });
+            const exercise = await db.Exercise.create(
+                {
+                    name: fields.name!,
+                },
+                { transaction: transaction }
+            );
 
             const muscles = await db.Muscle.findAll({
                 where: {
@@ -19,9 +23,14 @@ export default class ExerciseDataAccess implements IExerciseDA {
                 },
             });
 
-            await exercise.addMuscles(muscles);
-            return { ...exercise.dataValues, muscles: muscles };
+            await exercise.addMuscles(muscles, { transaction: transaction });
+            await transaction.commit();
+
+            return await exercise.reload({
+                include: db.associations.exerciseHasManyMuscle,
+            });
         } catch (error) {
+            transaction.rollback();
             if (error instanceof ValidationError) {
                 throw errors.makeDuplicateError('exercise', ['name']);
             }
@@ -41,34 +50,47 @@ export default class ExerciseDataAccess implements IExerciseDA {
     }
 
     async update(fields: Exercise): Promise<ExerciseResult> {
-        const exercise = await db.Exercise.findByPk(fields.id, {
-            include: db.associations.exerciseHasManyMuscle,
-        });
+        const transaction = await db.transaction();
+        try {
+            const exercise = await db.Exercise.findByPk(fields.id, {
+                include: db.associations.exerciseHasManyMuscle,
+                transaction: transaction,
+            });
 
-        if (!exercise) {
-            throw errors.makeBadRequest('given id does not exist');
+            if (!exercise) {
+                throw errors.makeBadRequest('given id does not exist');
+            }
+
+            exercise.name = fields.name ?? exercise.name;
+
+            if (fields.muscleIds && fields.muscleIds.length > 0) {
+                const muscles = await db.Muscle.findAll({
+                    where: { id: fields.muscleIds },
+                });
+
+                await exercise.setMuscles(muscles, { transaction: transaction });
+            }
+
+            const updatedExercise = await exercise.save({
+                omitNull: true,
+                transaction: transaction,
+            });
+            await transaction.commit();
+
+            return await updatedExercise.reload({
+                include: db.associations.exerciseHasManyMuscle,
+            });
+        } catch (error) {
+            transaction.rollback();
+            if (error instanceof ValidationError) {
+                throw errors.makeDuplicateError('exercise', ['name']);
+            }
+            throw error;
         }
-
-        exercise.name = fields.name ?? exercise.name;
-
-        if (fields.muscleIds && fields.muscleIds.length > 0) {
-            const muscles = await db.Muscle.findAll({ where: { id: fields.muscleIds } });
-
-            await exercise.setMuscles(muscles);
-        }
-
-        const updatedExercise = await exercise.save({ omitNull: true });
-        return await updatedExercise.reload({
-            include: db.associations.exerciseHasManyMuscle,
-        });
     }
 
     async delete(queries: Query[]): Promise<void> {
         const statement = buildSequelizeQuery(queries);
-        const exercises = await db.Exercise.findAll(statement);
-
-        exercises.forEach((exercise) => {
-            exercise.destroy();
-        });
+        await db.Exercise.destroy(statement);
     }
 }
