@@ -41,7 +41,7 @@ setRoute.get(
         const { query } = req;
 
         try {
-            const sets = await setService.read(query);
+            const sets = await setService.read({ ...query });
             res.status(200).json({ sets: sets });
         } catch (error) {
             next(error);

@@ -65,9 +65,6 @@ export default class MuscleDataAccess implements IMuscleDA {
 
     async delete(queries: Query[]): Promise<void> {
         const statement = buildSequelizeQuery(queries);
-        const muscles = await db.Muscle.findAll(statement);
-        muscles.forEach((muscle) => {
-            muscle.destroy();
-        });
+        await db.Muscle.destroy(statement);
     }
 }

@@ -23,9 +23,8 @@ export default class ProgramDataAccess implements IProgramDA {
     async read(queries: Query[]): Promise<Program[]> {
         const statement = buildSequelizeQuery(queries);
         return await db.Program.findAll({
-            order: col('id'),
+            order: col('endDate'),
             ...statement,
-            include: { all: true, nested: true },
         });
     }
 
@@ -46,10 +45,6 @@ export default class ProgramDataAccess implements IProgramDA {
 
     async delete(queries: Query[]): Promise<void> {
         const statement = buildSequelizeQuery(queries);
-        const programs = await db.Program.findAll(statement);
-
-        programs.forEach((program) => {
-            program.destroy();
-        });
+        await db.Program.destroy(statement);
     }
 }

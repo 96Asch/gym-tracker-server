@@ -27,6 +27,11 @@ export default class ProgramService implements IProgramService {
 
     async read(query: ProgramQuery): Promise<Program[]> {
         const queries = this.setQueryToQueries(query);
+
+        if (query.nested && query.nested == 'all') {
+            queries.push(queryBuilder.makeNested());
+        }
+
         return await this.programDA.read(queries);
     }
 

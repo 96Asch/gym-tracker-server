@@ -91,10 +91,6 @@ export default class ExerciseDataAccess implements IExerciseDA {
 
     async delete(queries: Query[]): Promise<void> {
         const statement = buildSequelizeQuery(queries);
-        const exercises = await db.Exercise.findAll(statement);
-
-        exercises.forEach((exercise) => {
-            exercise.destroy();
-        });
+        await db.Exercise.destroy(statement);
     }
 }

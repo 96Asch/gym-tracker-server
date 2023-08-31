@@ -33,9 +33,7 @@ export default class ProgramExerciseDataAccess implements IProgramExerciseDA {
 
             await programExercise.setExercise(exercise, { transaction: transaction });
 
-            const program = await db.Program.findByPk(fields.programId, {
-                include: { all: true, nested: true },
-            });
+            const program = await db.Program.findByPk(fields.programId);
             if (!program) {
                 throw errors.makeBadRequest('given exerciseId does not exist');
             }
@@ -44,7 +42,11 @@ export default class ProgramExerciseDataAccess implements IProgramExerciseDA {
             await transaction.commit();
 
             return await programExercise.reload({
-                include: { all: true, nested: true },
+                include: [
+                    { model: db.Exercise, include: [db.Muscle] },
+                    { model: db.Set },
+                ],
+                order: [[db.Set, 'createdAt']],
             });
         } catch (error) {
             transaction.rollback();
@@ -60,7 +62,8 @@ export default class ProgramExerciseDataAccess implements IProgramExerciseDA {
         const statement = buildSequelizeQuery(queries);
         return await db.ProgramExercise.findAll({
             ...statement,
-            include: { all: true, nested: true },
+            include: [{ model: db.Exercise, include: [db.Muscle] }, { model: db.Set }],
+            order: [[db.Set, 'createdAt']],
         });
     }
 
@@ -102,7 +105,11 @@ export default class ProgramExerciseDataAccess implements IProgramExerciseDA {
 
             await transaction.commit();
             return await savedProgramExercise.reload({
-                include: { all: true, nested: true },
+                include: [
+                    { model: db.Exercise, include: [db.Muscle] },
+                    { model: db.Set },
+                ],
+                order: [[db.Set, 'createdAt']],
             });
         } catch (error) {
             transaction.rollback();
@@ -115,10 +122,6 @@ export default class ProgramExerciseDataAccess implements IProgramExerciseDA {
 
     async delete(queries: Query[]): Promise<void> {
         const statement = buildSequelizeQuery(queries);
-        const programExercises = await db.ProgramExercise.findAll(statement);
-
-        programExercises.forEach((programExercise) => {
-            programExercise.destroy();
-        });
+        await db.ProgramExercise.destroy(statement);
     }
 }

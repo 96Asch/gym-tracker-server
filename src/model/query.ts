@@ -1,6 +1,6 @@
 import { errors } from '.';
 
-type QueryFormat = 'Range' | 'List' | 'Single';
+type QueryFormat = 'Range' | 'List' | 'Single' | 'Nested';
 type QueryOperator =
     | 'EQ'
     | 'In'
@@ -130,9 +130,14 @@ const makeSingle = function (key: string, val: string, operator: QueryOperator):
     };
 };
 
+const makeNested = function (): Query {
+    return { key: '', value: '', operator: 'EQ', format: 'Nested' };
+};
+
 export type { Query, QueryFormat, QueryOperator };
 export default Object.freeze({
     makeList,
     makeRange,
     makeSingle,
+    makeNested,
 });

@@ -46,7 +46,7 @@ export class SetDataAccess implements ISetDA {
         const statement = buildSequelizeQuery(queries);
         return await db.Set.findAll({
             ...statement,
-            include: { all: true, nested: true },
+            order: ['createdAt'],
         });
     }
 
@@ -96,10 +96,6 @@ export class SetDataAccess implements ISetDA {
 
     async delete(queries: Query[]): Promise<void> {
         const statement = buildSequelizeQuery(queries);
-        const sets = await db.Set.findAll(statement);
-
-        sets.forEach((set) => {
-            set.destroy();
-        });
+        await db.Set.destroy(statement);
     }
 }

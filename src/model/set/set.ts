@@ -15,7 +15,7 @@ export interface SetResult {
     repetitions: number;
     weightInKg: number;
     double: boolean;
-    createAt?: Date;
+    createdAt?: Date;
 }
 
 export type SetBody = Omit<Set, 'id'>;
@@ -27,4 +27,5 @@ export interface SetQuery {
     programIds?: string;
     exerciseIds?: string;
     double?: string;
+    nested: string;
 }

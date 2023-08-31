@@ -94,6 +94,10 @@ export default class SetService implements ISetService {
             queries.push(queryBuilder.makeSingle('double', query.double, 'EQ'));
         }
 
+        if (query.nested) {
+            queries.push(queryBuilder.makeNested());
+        }
+
         return queries;
     }
 }

@@ -23,17 +23,24 @@ const buildSequelizeQuery = function (queries: Query[]): Object {
     let andClauses: Object = {};
 
     queries.forEach((query: Query) => {
-        const sym = operatorToSequelize(query.operator);
-        andClauses = {
-            ...andClauses,
-            [query.key]: {
-                [sym]: query.value,
-            },
-        };
+        if (query.format == 'Nested') {
+            statement = {
+                include: { all: true, nested: true },
+            };
+        } else {
+            const sym = operatorToSequelize(query.operator);
+            andClauses = {
+                ...andClauses,
+                [query.key]: {
+                    [sym]: query.value,
+                },
+            };
+        }
     });
 
     if (queries.length > 0) {
         statement = {
+            ...statement,
             where: {
                 ...andClauses,
             },

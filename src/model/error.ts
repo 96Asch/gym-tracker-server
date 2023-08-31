@@ -32,7 +32,6 @@ const makeBadRequest = function (reason: string) {
 };
 
 const makeInternal = function (internalMessage: string) {
-    console.error(internalMessage);
     return new AppError(internalMessage, 500);
 };
 
