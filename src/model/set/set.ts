@@ -3,20 +3,24 @@ import { Program } from '../program';
 
 export interface Set {
     id?: number;
-    repetitions: number;
-    programId: number;
-    exerciseId: number;
-    weightInKg: number;
-    double: boolean;
+    repetitions?: number;
+    programId?: number;
+    exerciseId?: number;
+    weightInKg?: number;
+    double?: boolean;
+    shouldLog: boolean;
 }
+
 export interface SetResult {
     id: number;
     repetitions: number;
     weightInKg: number;
     double: boolean;
+    performedOn?: Date;
     program?: Program;
     exercise?: ExerciseResult;
 }
+
 export type SetBody = Omit<Set, 'id'>;
 
 export interface SetQuery {

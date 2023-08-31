@@ -14,18 +14,45 @@ import makeNumberedQuery from './idquery';
 export default class ProgramService implements IProgramService {
     constructor(private readonly programDA: IProgramDA) {}
 
-    async insert(program: Program): Promise<Program> {
-        if (program.endDate && program.endDate.getTime() <= Date.now()) {
+    async insert(fields: Program): Promise<Program> {
+        if (fields.endDate && fields.endDate.getTime() <= Date.now()) {
             throw error.makeBadRequest(
                 `endDate cannot be earlier or equal to ${formatDate(new Date())} `
             );
         }
 
-        const createdProgram = await this.programDA.insert(program);
+        const createdProgram = await this.programDA.insert(fields);
         return createdProgram;
     }
 
     async read(query: ProgramQuery): Promise<Program[]> {
+        const queries = this.setQueryToQueries(query);
+        return await this.programDA.read(queries);
+    }
+
+    async update(fields: Program): Promise<Program> {
+        if (fields.endDate && fields.endDate.getTime() <= Date.now()) {
+            throw error.makeBadRequest(
+                `endDate cannot be earlier or equal to ${formatDate(new Date())} `
+            );
+        }
+
+        fields.name = fields.name?.trim().toLowerCase();
+
+        return await this.programDA.update(fields);
+    }
+
+    async delete(query: ProgramQuery): Promise<void> {
+        const queries = this.setQueryToQueries(query);
+
+        if (queries.length == 0) {
+            return;
+        }
+
+        await this.programDA.delete(queries);
+    }
+
+    setQueryToQueries(query: ProgramQuery): Query[] {
         const queries: Query[] = [];
 
         if (query.ids) {
@@ -46,15 +73,6 @@ export default class ProgramService implements IProgramService {
             queries.push(queryBuilder.makeSingle('endDate', before, 'LessThanOrEqual'));
         }
 
-        const programs = await this.programDA.read(queries);
-        return programs;
-    }
-
-    async update(program: Program): Promise<Program> {
-        throw new Error('Method not implemented.');
-    }
-
-    async delete(ids: number[]): Promise<Program> {
-        throw new Error('Method not implemented.');
+        return queries;
     }
 }

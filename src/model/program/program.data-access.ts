@@ -5,5 +5,5 @@ export default interface IProgramDA {
     insert(program: Program): Promise<Program>;
     read(queries: Query[]): Promise<Program[]>;
     update(program: Program): Promise<Program>;
-    delete(ids: number[]): Promise<void>;
+    delete(queries: Query[]): Promise<void>;
 }

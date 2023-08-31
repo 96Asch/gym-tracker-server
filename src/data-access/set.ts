@@ -1,3 +1,4 @@
+import { ValidationError } from 'sequelize';
 import type { Query } from '../model';
 import { Set, SetQuery, ISetDA, errors } from '../model/';
 import { SetResult } from '../model/set/set';
@@ -10,9 +11,9 @@ export class SetDataAccess implements ISetDA {
     async insert(set: Set): Promise<SetResult> {
         const createdSet = await db.Set.create(
             {
-                repetitions: set.repetitions,
-                weightInKg: set.weightInKg,
-                double: set.double,
+                repetitions: set.repetitions!,
+                weightInKg: set.weightInKg!,
+                double: set.double!,
             },
             {
                 returning: true,
@@ -41,19 +42,66 @@ export class SetDataAccess implements ISetDA {
         const statement = buildSequelizeQuery(queries);
         return await db.Set.findAll({
             ...statement,
-            include: [
-                db.associations.setBelongsToExercise,
-                db.associations.setBelongsToProgram,
-                db.associations.muscleBelongsToManyExercise,
-            ],
+            include: { all: true, nested: true },
         });
     }
 
-    update(set: Set): Promise<SetResult> {
-        throw new Error('Method not implemented.');
+    async update(fields: Set): Promise<SetResult> {
+        try {
+            const set = await db.Set.findByPk(fields.id, {
+                include: db.associations.exerciseHasManyMuscle,
+            });
+
+            if (!set) {
+                throw errors.makeBadRequest(`record with id ${fields.id} does not exist`);
+            }
+
+            set.repetitions = fields.repetitions ?? set.repetitions;
+            set.weightInKg = fields.weightInKg ?? set.weightInKg;
+            set.double = fields.double ?? set.double;
+
+            if (fields.shouldLog) {
+                set.performedOn = new Date();
+            }
+
+            if (fields.exerciseId && fields.exerciseId != 0) {
+                const exercise = await db.Exercise.findByPk(fields.exerciseId, {
+                    include: db.associations.exerciseHasManyMuscle,
+                });
+                if (!exercise) {
+                    throw errors.makeBadRequest('given exerciseId does not exist');
+                }
+
+                await set.setExercise(exercise);
+            }
+
+            if (fields.programId && fields.programId != 0) {
+                const program = await db.Program.findByPk(fields.programId);
+                if (!program) {
+                    throw errors.makeBadRequest('given programId does not exist');
+                }
+
+                await set.setProgram(program);
+            }
+
+            const updatedSet = await set.save({ omitNull: true });
+            return updatedSet.reload({
+                include: { all: true, nested: true },
+            });
+        } catch (error) {
+            if (error instanceof ValidationError) {
+                throw errors.makeDuplicateError('exercise', ['name']);
+            }
+            throw error;
+        }
     }
 
-    delete(query: SetQuery): Promise<void> {
-        throw new Error('Method not implemented.');
+    async delete(queries: Query[]): Promise<void> {
+        const statement = buildSequelizeQuery(queries);
+        const sets = await db.Set.findAll(statement);
+
+        sets.forEach((set) => {
+            set.destroy();
+        });
     }
 }

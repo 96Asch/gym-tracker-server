@@ -25,7 +25,7 @@ export default class ProgramDataAccess implements IProgramDA {
         return await db.Program.findAll({
             order: col('id'),
             ...statement,
-            include: db.associations.programHasManySet,
+            include: { all: true, nested: true },
         });
     }
 
@@ -36,26 +36,22 @@ export default class ProgramDataAccess implements IProgramDA {
             throw errors.makeBadRequest('given id does not exist');
         }
 
-        retrievedProgram.name = program?.name ?? (program.name as string);
-        retrievedProgram.endDate = program?.endDate ?? (program.endDate as Date);
+        retrievedProgram.name = program.name ?? retrievedProgram.name;
+        retrievedProgram.endDate = program.endDate ?? retrievedProgram.endDate;
 
-        await retrievedProgram.save({ omitNull: true });
+        if (program.setIds && program.setIds.length > 0) {
+            const sets = await db.Set.findAll({ where: { id: program.setIds } });
+            await retrievedProgram.setSets(sets);
+        }
 
-        return {
-            id: retrievedProgram.id,
-            name: retrievedProgram.name,
-            endDate: retrievedProgram.endDate,
-        };
+        const updatedSet = await retrievedProgram.save({ omitNull: true });
+
+        return updatedSet.reload({ include: { all: true, nested: true } });
     }
 
-    async delete(ids: number[]): Promise<void> {
-        const programs = await db.Program.findAll({
-            where: {
-                id: {
-                    [Op.in]: ids,
-                },
-            },
-        });
+    async delete(queries: Query[]): Promise<void> {
+        const statement = buildSequelizeQuery(queries);
+        const programs = await db.Program.findAll(statement);
 
         programs.forEach((program) => {
             program.destroy();

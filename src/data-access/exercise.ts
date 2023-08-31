@@ -10,16 +10,16 @@ export default class ExerciseDataAccess implements IExerciseDA {
     async insert(fields: Exercise): Promise<ExerciseResult> {
         try {
             const exercise = await db.Exercise.create({
-                name: fields.name,
+                name: fields.name!,
             });
 
             const muscles = await db.Muscle.findAll({
                 where: {
-                    id: fields.muscleIds,
+                    id: fields.muscleIds!,
                 },
             });
 
-            exercise.addMuscles(muscles);
+            await exercise.addMuscles(muscles);
             return { ...exercise.dataValues, muscles: muscles };
         } catch (error) {
             if (error instanceof ValidationError) {
@@ -31,42 +31,41 @@ export default class ExerciseDataAccess implements IExerciseDA {
 
     async read(queries: Query[]): Promise<ExerciseResult[]> {
         const statement = buildSequelizeQuery(queries);
-        console.log(statement);
         const exercises = await db.Exercise.findAll({
             order: col('id'),
             ...statement,
-            include: db.associations.muscleBelongsToManyExercise,
+            include: db.associations.exerciseHasManyMuscle,
         });
 
         return exercises;
     }
 
     async update(fields: Exercise): Promise<ExerciseResult> {
-        const exercise = await db.Exercise.findByPk(fields.id);
+        const exercise = await db.Exercise.findByPk(fields.id, {
+            include: db.associations.exerciseHasManyMuscle,
+        });
 
         if (!exercise) {
             throw errors.makeBadRequest('given id does not exist');
         }
 
-        exercise.name = fields?.name ?? exercise.name;
+        exercise.name = fields.name ?? exercise.name;
 
-        const muscles = await db.Muscle.findAll({ where: { id: fields.muscleIds } });
+        if (fields.muscleIds && fields.muscleIds.length > 0) {
+            const muscles = await db.Muscle.findAll({ where: { id: fields.muscleIds } });
 
-        exercise.setMuscles(muscles);
+            await exercise.setMuscles(muscles);
+        }
 
-        exercise.save({ omitNull: true });
-
-        return exercise;
+        const updatedExercise = await exercise.save({ omitNull: true });
+        return await updatedExercise.reload({
+            include: db.associations.exerciseHasManyMuscle,
+        });
     }
 
-    async delete(ids: number[]): Promise<void> {
-        const exercises = await db.Exercise.findAll({
-            where: {
-                id: {
-                    [Op.in]: ids,
-                },
-            },
-        });
+    async delete(queries: Query[]): Promise<void> {
+        const statement = buildSequelizeQuery(queries);
+        const exercises = await db.Exercise.findAll(statement);
 
         exercises.forEach((exercise) => {
             exercise.destroy();

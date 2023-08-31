@@ -4,5 +4,5 @@ export default interface IProgramService {
     insert(program: Program): Promise<Program>;
     read(query: ProgramQuery): Promise<Program[]>;
     update(program: Program): Promise<Program>;
-    delete(ids: number[]): Promise<Program>;
+    delete(query: ProgramQuery): Promise<void>;
 }

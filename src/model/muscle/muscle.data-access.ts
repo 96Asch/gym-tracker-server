@@ -5,5 +5,5 @@ export default interface IMuscleDA {
     insert(program: Muscle): Promise<Muscle>;
     read(queries: Query[]): Promise<Muscle[]>;
     update(program: Muscle): Promise<Muscle>;
-    delete(ids: number[]): Promise<void>;
+    delete(queries: Query[]): Promise<void>;
 }
