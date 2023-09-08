@@ -19,6 +19,7 @@ class Program extends Model<InferAttributes<Program>, InferCreationAttributes<Pr
     declare name: string;
     declare endDate: Date;
 
+    declare createProgramExercise: HasManyCreateAssociationMixin<ProgramExercise>;
     declare addProgramExercise: HasManyAddAssociationMixin<ProgramExercise, number>;
     declare addProgramExercises: HasManyAddAssociationsMixin<ProgramExercise, number[]>;
     declare setProgramExercises: HasManySetAssociationsMixin<ProgramExercise, number[]>;

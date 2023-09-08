@@ -10,6 +10,10 @@ interface ProgramExercise {
 
 type ProgramExerciseBody = Omit<ProgramExercise, 'id'>;
 
+interface ProgramExerciseBodyList {
+    programExercises: ProgramExerciseBody[];
+}
+
 interface ProgramExerciseResult {
     id: number;
     order: number;
@@ -26,6 +30,7 @@ interface ProgramExerciseQuery {
 export type {
     ProgramExercise,
     ProgramExerciseBody,
+    ProgramExerciseBodyList,
     ProgramExerciseResult,
     ProgramExerciseQuery,
 };

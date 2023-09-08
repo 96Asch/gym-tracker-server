@@ -21,10 +21,6 @@ export default class ProgramService implements IProgramService {
             );
         }
 
-        if (fields.exerciseIds && fields.exerciseIds.length == 0) {
-            throw error.makeBadRequest('exerciseIds cannot be empty');
-        }
-
         const createdProgram = await this.programDA.insert(fields);
         return createdProgram;
     }
@@ -44,10 +40,6 @@ export default class ProgramService implements IProgramService {
             throw error.makeBadRequest(
                 `endDate cannot be earlier or equal to ${formatDate(new Date())} `
             );
-        }
-
-        if (fields.exerciseIds && fields.exerciseIds.length == 0) {
-            throw error.makeBadRequest('exerciseIds cannot be empty');
         }
 
         fields.name = fields.name?.trim().toLowerCase();

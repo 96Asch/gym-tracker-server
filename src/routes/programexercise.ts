@@ -1,6 +1,11 @@
 import { Router } from 'express';
 import type { Request, Response, NextFunction } from 'express';
-import { ProgramExerciseBody, ProgramExerciseQuery, errors } from '../model';
+import {
+    ProgramExerciseBodyList,
+    ProgramExerciseBody,
+    ProgramExerciseQuery,
+    errors,
+} from '../model';
 import { programExerciseService } from '../service';
 
 const programExerciseRoute = Router();
@@ -8,20 +13,33 @@ const programExerciseRoute = Router();
 programExerciseRoute.post(
     '/',
     async (
-        req: Request<{}, {}, ProgramExerciseBody, {}>,
+        req: Request<{}, {}, ProgramExerciseBodyList, {}>,
         res: Response,
         next: NextFunction
     ) => {
         const { body } = req;
 
-        if (!body.exerciseId || !body.programId || !body.order) {
-            next(errors.makeBadRequest('[exerciseId, programId, order] are required'));
+        if (!body.programExercises) {
+            next(errors.makeBadRequest('[programExercises] is required'));
 
             return;
         }
+
+        body.programExercises.forEach((body) => {
+            if (!body.order || !body.programId || !body.exerciseId) {
+                next(
+                    errors.makeBadRequest(
+                        '[programExercises.order, programExercises.programId, programExercises.exerciseId] is required'
+                    )
+                );
+
+                return;
+            }
+        });
+
         try {
             const programExercise = await programExerciseService.insert(body);
-            res.status(201).json({ programExercise: programExercise });
+            res.status(201).json({ programExercises: programExercise });
         } catch (error) {
             next(error);
         }

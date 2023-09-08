@@ -19,18 +19,6 @@ export default class ProgramDataAccess implements IProgramDA {
                 { transaction: transaction }
             );
 
-            const programExercises = await db.ProgramExercise.findAll({
-                where: {
-                    id: program.exerciseIds,
-                },
-                transaction: transaction,
-            });
-
-            if (programExercises) {
-                await createdProgram.setProgramExercises(programExercises, {
-                    transaction: transaction,
-                });
-            }
             await transaction.commit();
 
             return await createdProgram.reload({ include: db.ProgramExercise });
@@ -62,19 +50,6 @@ export default class ProgramDataAccess implements IProgramDA {
 
             retrievedProgram.name = program.name ?? retrievedProgram.name;
             retrievedProgram.endDate = program.endDate ?? retrievedProgram.endDate;
-
-            const programExercises = await db.ProgramExercise.findAll({
-                where: {
-                    id: program.exerciseIds,
-                },
-                transaction: transaction,
-            });
-
-            if (programExercises) {
-                await retrievedProgram.setProgramExercises(programExercises, {
-                    transaction: transaction,
-                });
-            }
 
             await transaction.commit();
 

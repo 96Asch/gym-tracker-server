@@ -3,7 +3,6 @@ interface Program {
     name?: string;
     endDate?: Date;
     setIds?: number[];
-    exerciseIds?: number[];
 }
 
 interface StringedFields {

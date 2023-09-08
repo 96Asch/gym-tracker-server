@@ -8,6 +8,7 @@ import {
     HasManyAddAssociationMixin,
     HasManyAddAssociationsMixin,
     BelongsToSetAssociationMixin,
+    BelongsTo,
 } from 'sequelize';
 import { sequelizeInstance } from './sequelize';
 import Exercise from './exercise';
