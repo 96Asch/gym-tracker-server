@@ -6,22 +6,35 @@ import type {
     ProgramExerciseQuery,
     ProgramExerciseResult,
     ProgramExercise,
+    ProgramExerciseBodyList,
 } from '../model';
 import makeNumberedQuery from './idquery';
 
 export default class ProgramExerciseService implements IProgramExerciseService {
     constructor(private readonly programExerciseDA: IProgramExerciseDA) {}
 
-    async insert(body: ProgramExerciseBody): Promise<ProgramExerciseResult> {
-        if (!body.exerciseId || !body.programId || !body.order) {
-            throw errors.makeInternal('required fields are empty');
+    async insert(body: ProgramExerciseBodyList): Promise<ProgramExerciseResult[]> {
+        if (!body.programExercises) {
+            throw errors.makeBadRequest('[programExercises] is required');
         }
 
-        return await this.programExerciseDA.insert({
-            exerciseId: body.exerciseId,
-            programId: body.exerciseId,
-            order: body.order,
+        body.programExercises.forEach((body) => {
+            if (!body.order || !body.programId || !body.exerciseId) {
+                throw errors.makeBadRequest(
+                    '[programExercises.order, programExercises.programId, programExercises.exerciseId] is required'
+                );
+            }
         });
+
+        return await this.programExerciseDA.insert(
+            body.programExercises.map((body) => {
+                return {
+                    exerciseId: body.exerciseId,
+                    programId: body.exerciseId,
+                    order: body.order,
+                };
+            })
+        );
     }
 
     async read(query: ProgramExerciseQuery): Promise<ProgramExerciseResult[]> {

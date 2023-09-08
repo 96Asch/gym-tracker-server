@@ -12,42 +12,58 @@ import { stat } from 'fs';
 export default class ProgramExerciseDataAccess implements IProgramExerciseDA {
     constructor() {}
 
-    async insert(fields: ProgramExercise): Promise<ProgramExerciseResult> {
+    async insert(fields: ProgramExercise[]): Promise<ProgramExerciseResult[]> {
         const transaction = await db.transaction();
         try {
-            console.log(fields.order);
-            const programExercise = await db.ProgramExercise.create(
-                {
-                    order: fields.order!,
-                },
+            const programExercises = await db.ProgramExercise.bulkCreate(
+                fields.map((pe) => {
+                    return {
+                        order: pe.order!,
+                    };
+                }),
                 { transaction: transaction }
             );
 
-            const exercise = await db.Exercise.findByPk(fields.exerciseId, {
-                include: { all: true, nested: true },
-                transaction: transaction,
-            });
-            if (!exercise) {
-                throw errors.makeBadRequest('given exerciseId does not exist');
+            for (let index = 0; index < fields.length; index++) {
+                const exercise = await db.Exercise.findByPk(fields[index].exerciseId, {
+                    transaction: transaction,
+                });
+
+                if (!exercise) {
+                    throw errors.makeBadRequest('given exerciseId does not exist');
+                }
+
+                await programExercises[index].setExercise(exercise, {
+                    transaction: transaction,
+                });
+
+                const program = await db.Program.findByPk(fields[index].programId);
+                if (!program) {
+                    throw errors.makeBadRequest('given exerciseId does not exist');
+                }
+
+                await programExercises[index].setProgram(program, {
+                    transaction: transaction,
+                });
             }
 
-            await programExercise.setExercise(exercise, { transaction: transaction });
-
-            const program = await db.Program.findByPk(fields.programId);
-            if (!program) {
-                throw errors.makeBadRequest('given exerciseId does not exist');
-            }
-
-            await programExercise.setProgram(program, { transaction: transaction });
             await transaction.commit();
 
-            return await programExercise.reload({
-                include: [
-                    { model: db.Exercise, include: [db.Muscle] },
-                    { model: db.Set },
-                ],
-                order: [[db.Set, 'createdAt']],
-            });
+            const reloadedProgramexercises = [];
+
+            for (let index = 0; index < programExercises.length; index++) {
+                const reloadedProgramExercise = await programExercises[index].reload({
+                    include: [
+                        { model: db.Exercise, include: [db.Muscle] },
+                        { model: db.Set },
+                    ],
+                    order: [[db.Set, 'createdAt']],
+                });
+
+                reloadedProgramexercises.push(reloadedProgramExercise.dataValues);
+            }
+
+            return reloadedProgramexercises;
         } catch (error) {
             transaction.rollback();
             if (error instanceof ValidationError) {

@@ -16,6 +16,7 @@ import {
 import {
     ProgramExercise,
     ProgramExerciseBody,
+    ProgramExerciseBodyList,
     ProgramExerciseQuery,
     ProgramExerciseResult,
     IProgramExerciseDA,
@@ -35,6 +36,7 @@ export type { Program, IProgramDA, IProgramService, ProgramBody, ProgramQuery };
 export type {
     ProgramExercise,
     ProgramExerciseBody,
+    ProgramExerciseBodyList,
     ProgramExerciseQuery,
     ProgramExerciseResult,
     IProgramExerciseDA,
