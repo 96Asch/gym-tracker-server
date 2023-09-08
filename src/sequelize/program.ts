@@ -12,6 +12,7 @@ import {
 } from 'sequelize';
 import { sequelizeInstance } from './sequelize';
 import ProgramExercise from './programexercise';
+import { HasManySetAssociationsMixin } from 'sequelize';
 
 class Program extends Model<InferAttributes<Program>, InferCreationAttributes<Program>> {
     declare id: CreationOptional<number>;
@@ -20,7 +21,7 @@ class Program extends Model<InferAttributes<Program>, InferCreationAttributes<Pr
 
     declare addProgramExercise: HasManyAddAssociationMixin<ProgramExercise, number>;
     declare addProgramExercises: HasManyAddAssociationsMixin<ProgramExercise, number[]>;
-    declare createProgramExercise: HasManyCreateAssociationMixin<ProgramExercise>;
+    declare setProgramExercises: HasManySetAssociationsMixin<ProgramExercise, number[]>;
     declare removeProgramExercise: HasManyRemoveAssociationMixin<ProgramExercise, number>;
 
     declare programExercises?: NonAttribute<ProgramExercise>;

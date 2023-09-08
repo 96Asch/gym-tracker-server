@@ -22,6 +22,12 @@ programRoute.post(
             return;
         }
 
+        if (!body.exerciseIds) {
+            next(errors.makeBadRequest('exerciseIds cannot be empty'));
+
+            return;
+        }
+
         if (Number.isNaN(Date.parse(body.endDate))) {
             next(errors.makeBadRequest('endDate is not a valid date'));
 
@@ -32,6 +38,7 @@ programRoute.post(
             const createdProgram = await programService.insert({
                 name: body.name,
                 endDate: new Date(body.endDate),
+                exerciseIds: body.exerciseIds,
             });
 
             res.status(201).json({ program: createdProgram });
