@@ -20,6 +20,7 @@ class ProgramExercise extends Model<
 > {
     declare id: CreationOptional<number>;
     declare order: number;
+    declare exerciseId: number;
 
     declare addSet: HasManyAddAssociationMixin<Set, number>;
     declare addSets: HasManyAddAssociationsMixin<Set, number[]>;
