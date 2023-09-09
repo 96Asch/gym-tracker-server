@@ -43,7 +43,6 @@ ProgramExercise.init(
         },
         order: {
             allowNull: false,
-            unique: true,
             type: DataTypes.INTEGER,
         },
     },

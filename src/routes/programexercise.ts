@@ -57,7 +57,7 @@ programExerciseRoute.get(
 
         try {
             const programExercises = await programExerciseService.read(query);
-            res.status(201).json({ programExercises: programExercises });
+            res.status(200).json({ programExercises: programExercises });
         } catch (error) {
             next(error);
         }

@@ -16,7 +16,11 @@ setRoute.post(
             !body.repetitions ||
             !body.weightInKg
         ) {
-            next(errors.makeBadRequest(`missing required fields`));
+            next(
+                errors.makeBadRequest(
+                    `missing one or more [double, programExerciseId, repetitions, weightInKg]`
+                )
+            );
 
             return;
         }
@@ -27,7 +31,7 @@ setRoute.post(
         }
 
         try {
-            const set = await setService.insert({ ...body });
+            const set = await setService.insert(body);
             res.status(201).json({ set: set });
         } catch (error) {
             next(error);
@@ -41,7 +45,7 @@ setRoute.get(
         const { query } = req;
 
         try {
-            const sets = await setService.read({ ...query });
+            const sets = await setService.read(query);
             res.status(200).json({ sets: sets });
         } catch (error) {
             next(error);

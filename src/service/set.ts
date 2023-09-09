@@ -7,11 +7,13 @@ export default class SetService implements ISetService {
     constructor(private readonly setDA: ISetDA) {}
 
     async insert(set: Set): Promise<SetResult> {
+        console.log(set);
+
         if (
             !set.programExerciseId ||
             !set.repetitions ||
             !set.weightInKg ||
-            !set.double
+            set.double == null
         ) {
             throw errors.makeInternal(`fields of Set are null or undefined`);
         }
@@ -74,12 +76,10 @@ export default class SetService implements ISetService {
             queries.push(makeNumberedQuery('id', query.ids));
         }
 
-        if (query.exerciseIds) {
-            queries.push(makeNumberedQuery('exerciseId', query.exerciseIds));
-        }
-
-        if (query.programIds) {
-            queries.push(makeNumberedQuery('programId', query.programIds));
+        if (query.programExerciseIds) {
+            queries.push(
+                makeNumberedQuery('programExerciseId', query.programExerciseIds)
+            );
         }
 
         if (query.weightInKg) {
