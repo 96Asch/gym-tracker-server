@@ -30,7 +30,7 @@ export default class ProgramExerciseService implements IProgramExerciseService {
             body.programExercises.map((body) => {
                 return {
                     exerciseId: body.exerciseId,
-                    programId: body.exerciseId,
+                    programId: body.programId,
                     order: body.order,
                 };
             })

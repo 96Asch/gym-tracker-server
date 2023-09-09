@@ -35,7 +35,7 @@ Set.init(
         },
         weightInKg: {
             allowNull: false,
-            type: DataTypes.INTEGER,
+            type: DataTypes.DOUBLE,
             defaultValue: 0,
         },
         double: {
