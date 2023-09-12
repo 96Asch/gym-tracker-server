@@ -20,6 +20,7 @@ const exerciseHasManyMuscle = Exercise.belongsToMany(Muscle, {
 const programExerciseBelongsToOneExercise = ProgramExercise.belongsTo(Exercise, {
     foreignKey: { name: 'exerciseId' },
     targetKey: 'id',
+    onDelete: 'CASCADE',
 });
 
 const exerciseHasOneProgramExercise = Exercise.hasOne(ProgramExercise, {
@@ -42,11 +43,13 @@ const setBelongsToProgramExercise = Set.belongsTo(ProgramExercise, {
 const programHasManyProgramExercise = Program.hasMany(ProgramExercise, {
     foreignKey: 'programId',
     sourceKey: 'id',
+    onDelete: 'CASCADE',
 });
 
 const programExerciseBelongsToOneProgram = ProgramExercise.belongsTo(Program, {
     foreignKey: { name: 'programId' },
     targetKey: 'id',
+    onDelete: 'CASCADE',
 });
 
 const associations = Object.freeze({
